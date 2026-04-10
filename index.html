@@ -14,20 +14,20 @@
   --gold:#f0b84a; --green:#3ecf8e; --red:#f56565; --red2:#fc8585;
   --purple:#a78bfa; --teal:#2dd4bf;
   --day-c:#4f8ef7; --eve-c:#f0b84a; --grad-c:#3ecf8e; --prof-c:#a78bfa;
-  --col-w:98px; --row-h:44px; --label-w:60px;
+  --col-w:116px; --row-h:52px; --label-w:72px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:13px;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:15px;}
 
 /* ── APP SHELL ── */
 .app{display:flex;height:100vh;overflow:hidden;}
 
 /* ── LEFT SIDEBAR ── */
-.sidebar{width:268px;min-width:268px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar{width:300px;min-width:300px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
 .sb-header{padding:11px 13px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .sb-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;}
 .class-tabs{display:flex;flex-wrap:wrap;gap:3px;padding:7px 9px;border-bottom:1px solid var(--border);flex-shrink:0;}
-.class-tab{font-size:11px;padding:3px 7px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .12s;font-family:inherit;}
+.class-tab{font-size:12px;padding:4px 9px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .12s;font-family:inherit;}
 .class-tab:hover{border-color:var(--border2);color:var(--text);}
 .class-tab.active{color:#fff;border-color:transparent;}
 .class-tab[data-type="day"].active{background:var(--day-c);}
@@ -42,10 +42,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .course-item:hover{border-color:var(--border2);background:var(--surface2);}
 .course-item.dragging{opacity:.4;}
 .course-item.placed{opacity:.38;cursor:not-allowed;}
-.course-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.3;}
+.course-name{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.3;}
 .course-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
-.course-teacher{font-size:10px;color:var(--text3);}
-.tag{font-size:10px;padding:1px 5px;border-radius:3px;font-weight:500;}
+.course-teacher{font-size:11px;color:var(--text3);}
+.tag{font-size:11px;padding:2px 6px;border-radius:3px;font-weight:500;}
 .tag-req{background:rgba(79,142,247,.15);color:var(--accent2);}
 .tag-sel{background:rgba(240,184,74,.12);color:var(--gold);}
 .tag-cred{background:rgba(255,255,255,.06);color:var(--text2);font-family:'DM Mono',monospace;}
@@ -65,17 +65,17 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
 .toolbar{display:flex;gap:5px;align-items:center;padding:6px 14px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
-.btn{padding:4px 11px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:inherit;transition:all .12s;}
+.btn{padding:5px 13px;border-radius:5px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:inherit;transition:all .12s;}
 .btn:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent2);}
 .btn.primary{background:rgba(79,142,247,.15);border-color:var(--accent);color:var(--accent2);}
 .btn.danger{background:rgba(245,101,101,.1);border-color:var(--red);color:var(--red2);}
 .spacer{flex:1;}
 .view-toggle{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden;}
-.vt-btn{padding:4px 11px;font-size:11px;cursor:pointer;background:transparent;color:var(--text3);border:none;font-family:inherit;transition:all .12s;}
+.vt-btn{padding:5px 13px;font-size:12px;cursor:pointer;background:transparent;color:var(--text3);border:none;font-family:inherit;transition:all .12s;}
 .vt-btn.active{background:var(--surface2);color:var(--text);}
 
 .legend{display:flex;gap:11px;padding:0 16px;align-items:center;height:27px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
-.li{display:flex;gap:4px;align-items:center;font-size:10px;color:var(--text3);}
+.li{display:flex;gap:5px;align-items:center;font-size:12px;color:var(--text3);}
 .ld{width:8px;height:8px;border-radius:2px;}
 
 /* ── CONTENT AREA ── */
@@ -88,11 +88,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .grid-section-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;padding-left:var(--label-w);}
 .timetable-wrap{display:flex;flex-direction:column;gap:2px;}
 .tt-header-row{display:flex;gap:2px;padding-left:var(--label-w);margin-bottom:2px;}
-.tt-day-hdr{width:var(--col-w);text-align:center;font-size:11px;font-weight:600;color:var(--text2);padding:3px 0;letter-spacing:.04em;}
+.tt-day-hdr{width:var(--col-w);text-align:center;font-size:13px;font-weight:600;color:var(--text2);padding:3px 0;letter-spacing:.04em;}
 .tt-period-row{display:flex;gap:2px;}
 .period-label{width:var(--label-w);min-width:var(--label-w);display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding-right:7px;}
-.period-label .pnum{font-size:11px;font-weight:600;color:var(--text2);font-family:'DM Mono',monospace;}
-.period-label .ptime{font-size:9px;color:var(--text3);}
+.period-label .pnum{font-size:13px;font-weight:600;color:var(--text2);font-family:'DM Mono',monospace;}
+.period-label .ptime{font-size:10px;color:var(--text3);}
 .day-cell{width:var(--col-w);position:relative;}
 .slot-block{position:absolute;left:0;right:0;top:0;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:var(--surface);z-index:1;}
 .slot-block.empty{height:var(--row-h);cursor:pointer;transition:border-color .12s,background .12s;}
@@ -106,9 +106,9 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .cc-grad{background:rgba(62,207,142,.22);color:#9dffce;}
 .cc-prof{background:rgba(167,139,250,.22);color:#d0bbff;}
 .cc-custom{background:rgba(255,255,255,.1);color:#dde0ee;}
-.cc-name{font-size:11px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
-.cc-teacher{font-size:9px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
-.cc-credits{font-size:9px;opacity:.6;font-family:'DM Mono',monospace;margin-top:1px;}
+.cc-name{font-size:12px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.cc-teacher{font-size:10px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.cc-credits{font-size:10px;opacity:.6;font-family:'DM Mono',monospace;margin-top:1px;}
 .cc-remove{position:absolute;top:3px;right:4px;width:14px;height:14px;font-size:11px;line-height:14px;text-align:center;cursor:pointer;opacity:0;transition:opacity .1s;border-radius:3px;background:rgba(0,0,0,.45);}
 .slot-block:hover .cc-remove{opacity:1;}
 
@@ -141,7 +141,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .load-fill{height:2px;border-radius:1px;transition:width .3s;}
 
 /* ── BOTTOM ── */
-.bottom-panel{height:140px;border-top:1px solid var(--border);background:var(--bg2);display:flex;flex-shrink:0;}
+.bottom-panel{height:155px;border-top:1px solid var(--border);background:var(--bg2);display:flex;flex-shrink:0;}
 .conflict-panel{flex:1;overflow-y:auto;padding:7px 13px;}
 .conflict-panel::-webkit-scrollbar{width:3px;}
 .conflict-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
@@ -222,8 +222,10 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 .icon-btn:hover{background:var(--surface2);color:var(--text);}
 .icon-btn.del:hover{color:var(--red2);}
 /* delete btn on course items */
-.course-del-btn{position:absolute;right:6px;bottom:5px;font-size:9px;color:var(--text3);cursor:pointer;padding:1px 5px;border-radius:3px;border:1px solid var(--border);background:transparent;font-family:inherit;transition:all .12s;}
+.course-del-btn{position:absolute;right:6px;bottom:5px;font-size:10px;color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;font-family:inherit;transition:all .12s;}
 .course-del-btn:hover{color:var(--red2);border-color:var(--red);}
+.course-edit-btn{position:absolute;right:44px;bottom:5px;font-size:10px;color:var(--text3);cursor:pointer;padding:2px 6px;border-radius:3px;border:1px solid var(--border);background:transparent;font-family:inherit;transition:all .12s;}
+.course-edit-btn:hover{color:var(--accent2);border-color:var(--accent);}
 
 /* ── CLASSROOM VIEW ── */
 .room-selector{display:flex;flex-wrap:wrap;gap:4px;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
@@ -268,7 +270,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <span id="sb-progress" style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;"></span>
   </div>
   <div class="class-tabs" id="class-tabs"></div>
-  <button class="add-course-btn" onclick="openAddModal()">＋ 新增課程（共同/自訂）</button>
+  <button class="add-course-btn" onclick="openAddModal()">＋ 新增課程</button>
   <div class="course-list" id="course-list"></div>
 </div>
 
@@ -293,10 +295,16 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <button class="btn" onclick="openClassMgr()">🏫 管理班級</button>
     <button class="btn" onclick="openRoomMgr()">🚪 管理教室</button>
     <button class="btn" onclick="exportBackup()">↓ 匯出備份</button>
-    <label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;">
-      ↑ 匯入備份
-      <input type="file" accept=".json" onchange="importBackup(event)" style="display:none;">
-    </label>
+    <button class="btn" onclick="document.getElementById('import-file').click()">↑ 匯入備份</button>
+    <input type="file" id="import-file" accept=".json" onchange="importBackup(event)" style="display:none;">
+    <div style="position:relative;display:inline-block;" id="export-word-wrap">
+      <button class="btn" onclick="toggleExportMenu()" style="background:rgba(62,207,142,.12);border-color:rgba(62,207,142,.4);color:#3ecf8e;">📄 匯出 Word</button>
+      <div id="export-menu" style="display:none;position:absolute;top:calc(100% + 4px);left:0;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:6px;z-index:2000;min-width:160px;box-shadow:0 8px 24px rgba(0,0,0,.5);">
+        <div onclick="exportWord('class')"  style="padding:7px 12px;font-size:12px;cursor:pointer;border-radius:5px;color:var(--text2);transition:background .1s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">🏫 班級課表</div>
+        <div onclick="exportWord('teacher')" style="padding:7px 12px;font-size:12px;cursor:pointer;border-radius:5px;color:var(--text2);transition:background .1s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">👤 教師課表</div>
+        <div onclick="exportWord('room')"    style="padding:7px 12px;font-size:12px;cursor:pointer;border-radius:5px;color:var(--text2);transition:background .1s;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='transparent'">🚪 教室課表</div>
+      </div>
+    </div>
     <div class="spacer"></div>
     <div class="view-toggle">
       <button class="vt-btn active" id="vt-class"   onclick="setView('class')">班級課表</button>
@@ -365,11 +373,14 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
 <!-- ══ ADD COURSE MODAL ══ -->
 <div class="modal-overlay" id="add-modal" style="display:none" onclick="closeModalOutside(event)">
-  <div class="modal" style="width:420px;position:relative;overflow:visible;">
-    <div class="modal-title">新增課程（共同必修 / 自訂）</div>
+  <div class="modal" style="width:440px;position:relative;overflow:visible;">
+    <div class="modal-title" id="modal-course-title">新增課程</div>
     <div class="form-row">
       <label class="form-label">班級</label>
-      <select class="form-select" id="m-class"></select>
+      <!-- 新增模式：鎖定顯示，不可更改 -->
+      <div id="m-class-locked" style="padding:7px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:12px;"></div>
+      <!-- 編輯模式：可切換 -->
+      <select class="form-select" id="m-class" style="display:none;"></select>
     </div>
     <div class="form-row">
       <label class="form-label">課程名稱</label>
@@ -393,7 +404,6 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <div class="form-row" style="margin-top:12px;position:relative;">
       <label class="form-label">任課教師（可搜尋選擇，支援多位）</label>
       <div class="teacher-tag-input-wrap" id="m-teacher-wrap" onclick="document.getElementById('m-teacher-search').focus()">
-        <!-- tags injected here by JS -->
         <input class="teacher-search-input" id="m-teacher-search"
           placeholder="搜尋教師姓名…"
           autocomplete="off"
@@ -406,7 +416,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     </div>
     <div class="modal-actions">
       <button class="btn" onclick="closeAddModal()">取消</button>
-      <button class="btn primary" onclick="confirmAddCourse()">新增</button>
+      <button class="btn primary" id="modal-course-btn" onclick="confirmCourse()">新增</button>
     </div>
   </div>
 </div>
@@ -760,13 +770,29 @@ let selectedTeacherId = 'T01';
 let selectedRoomId = null;   // for room view
 let currentView = 'class';
 let dragCourseId = null;
+let movingCourseId = null;   // 教師課表中正在拖曳移動的課程 ID
+let movingFromEntry = null;  // 移動前的 entry 資訊（含 classId, day, slots）
 let conflicts = [];
 let lastPlaced = null;       // {classId, entry} for undo
 
 // ── Lookup maps ──
-const tmap = Object.fromEntries(TEACHERS.map(t=>[t.id,t]));
-const cmap = Object.fromEntries(CLASSES.map(c=>[c.id,c]));
-const comap = () => Object.fromEntries(COURSES.map(c=>[c.id,c]));
+// 注意：tmap/cmap 需要是動態的，因為 TEACHERS/CLASSES 可能在執行期間被新增/刪除
+const tmap = {}; TEACHERS.forEach(t=>{ tmap[t.id]=t; });
+const cmap = {}; CLASSES.forEach(c=>{ cmap[c.id]=c; });
+const comap = () => {
+  const m={};
+  // 先走一遍，第一個遇到的 ID 優先（防止重複 ID 時後面覆蓋前面）
+  for(const c of COURSES){ if(!m[c.id]) m[c.id]=c; }
+  return m;
+};
+// 確保 customCourseCounter 不會和現有 ID 碰撞
+function nextCourseId(){
+  let id;
+  const existingIds=new Set(COURSES.map(c=>c.id));
+  do{ id=`CX${customCourseCounter++}`; } while(existingIds.has(id));
+  return id;
+}
+// rmap 也改成動態
 const rmap = () => Object.fromEntries(ROOMS.map(r=>[r.id,r]));
 
 function getTName(tid){ return tmap[tid]?.name||tid; }
@@ -828,12 +854,17 @@ function getTeacherSpan(startP, n){
 
 // ── Schedule queries ──
 function isPlaced(courseId){
-  const cm=comap(); const co=cm[courseId]; if(!co) return false;
-  return schedule[co.classId].some(e=>e.courseId===courseId);
+  for(const cls of CLASSES){
+    if(schedule[cls.id]?.some(e=>e.courseId===courseId)) return true;
+  }
+  return false;
 }
 function getEntry(courseId){
-  const cm=comap(); const co=cm[courseId]; if(!co) return null;
-  return schedule[co.classId].find(e=>e.courseId===courseId)||null;
+  for(const cls of CLASSES){
+    const e=schedule[cls.id]?.find(e=>e.courseId===courseId);
+    if(e) return {...e, classId:cls.id};
+  }
+  return null;
 }
 function isSpanFree(classId,day,span){
   for(const e of schedule[classId]){
@@ -909,9 +940,79 @@ function undoLastPlace(){
 }
 
 function removeCourse(courseId){
-  const cm=comap(); const co=cm[courseId]; if(!co) return;
-  schedule[co.classId]=schedule[co.classId].filter(e=>e.courseId!==courseId);
-  render(); detectConflicts(); showToast('已移除課程');
+  // 清除所有 schedule 裡對應的 entry（不依賴 co.classId，直接全班掃）
+  for(const cls of CLASSES){
+    if(schedule[cls.id]){
+      schedule[cls.id]=schedule[cls.id].filter(e=>e.courseId!==courseId);
+    }
+  }
+}
+
+// 課表格子上的 × 按鈕：清 schedule，課程保留在側欄可再排
+function removeEntry(courseId){
+  removeCourse(courseId);
+  render(); detectConflicts();
+  showToast('已從課表移除，課程仍可重新排入');
+}
+
+// 教師課表拖曳移動：把課程換到新的時段（保留原班級）
+function moveEntry(courseId, newDay, newStartP){
+  const cm=comap();
+  const co=cm[courseId]; if(!co) return;
+  const classId=co.classId;
+  const cls=cmap[classId]; if(!cls) return;
+
+  // 計算新 span
+  const newSpan=getSpan(cls, newStartP, co.credits);
+  if(!newSpan){
+    showToast(`⚠ 此格無法容納 ${co.credits} 節連排（跨午休或超出範圍）`);
+    return;
+  }
+
+  // 先暫時移除原排課
+  const oldEntry=schedule[classId]?.find(e=>e.courseId===courseId);
+  const oldRoomId=oldEntry?.roomId||null;
+  removeCourse(courseId);
+
+  // 檢查新時段是否空閒（同班）
+  if(!isSpanFree(classId, newDay, newSpan)){
+    // 放回原位
+    if(oldEntry) schedule[classId].push(oldEntry);
+    render(); detectConflicts();
+    showToast('⚠ 新時段已有其他課程，無法移動');
+    return;
+  }
+
+  // 放入新時段
+  const newEntry={courseId, day:newDay, slots:newSpan, roomId:oldRoomId};
+  schedule[classId].push(newEntry);
+  lastPlaced={classId, entry:newEntry};
+
+  render();
+  const newConflicts=detectConflicts();
+  const fresh=newConflicts.filter(c=>c.affected.some(a=>a.courseId===courseId));
+  if(fresh.length>0){
+    const lines=fresh.map(c=>`• ${c.msg}`).join('\n');
+    const hasRoom=fresh.some(c=>c.type==='room');
+    const hasTch=fresh.some(c=>c.type==='teacher');
+    const title=hasRoom&&hasTch?'教師 & 教室衝堂警告':hasRoom?'教室衝堂警告':'教師衝堂警告';
+    showConflictAlert(title,lines);
+  } else {
+    showToast('✓ 課程已移動，無衝堂');
+  }
+}
+
+// 從課程列表永久刪除（含 schedule）
+function deleteCourse(courseId){
+  const cm=comap(); const co=cm[courseId];
+  if(!co){ showToast('⚠ 找不到此課程'); return; }
+  const placed=isPlaced(courseId);
+  const msg=`確定要從課程列表刪除「${co.name}」嗎？${placed?'（此課程已排入課表，將一併清除）':''}`;
+  if(!confirm(msg)) return;
+  removeCourse(courseId);                          // 先清所有 schedule
+  COURSES=COURSES.filter(c=>c.id!==courseId);     // 再移除課程
+  render(); detectConflicts();
+  showToast(`已刪除「${co.name}」`);
 }
 
 // ══════════════════════════════════════════
@@ -1141,15 +1242,30 @@ function buildTimetable(periods, days, dayLabels, classId_or_null, teacherId_or_
           <div class="cc-teacher">${subtitle}</div>
           <div class="cc-credits">${co?.credits}節${co?.type?'·'+co.type:''}</div>
           ${rm?`<div class="room-badge">🚪${rm.name}</div>`:''}
-          ${!isTeacherView?`<div class="cc-remove" onclick="removeCourse('${entry.courseId}')">×</div>`:''}
+          <div class="cc-remove" onclick="removeEntry('${entry.courseId}')">×</div>
         `;
+        // 教師課表也可拖曳移動
+        if(isTeacherView){
+          block.draggable=true;
+          block.style.cursor='grab';
+          block.addEventListener('dragstart',ev=>{
+            movingCourseId=entry.courseId;
+            movingFromEntry={...entry};
+            ev.dataTransfer.effectAllowed='move';
+            setTimeout(()=>block.style.opacity='.4',0);
+          });
+          block.addEventListener('dragend',()=>{
+            block.style.opacity='';
+            if(!movingCourseId) movingCourseId=null;
+          });
+        }
         block.addEventListener('mouseenter',e=>showTooltip(e,co,entry,isTeacherView));
         block.addEventListener('mouseleave',hideTooltip);
         block.appendChild(card);
         cell.appendChild(block);
       } else if(!entry){
         if(!isTeacherView){
-          // Droppable
+          // 班級課表：一般拖放排課
           const block=document.createElement('div');
           block.className='slot-block empty';
           block.style.height=`${ROW_H}px`;
@@ -1174,13 +1290,22 @@ function buildTimetable(periods, days, dayLabels, classId_or_null, teacherId_or_
           });
           cell.appendChild(block);
         } else {
-          // Teacher view: empty read-only
+          // 教師課表：空格可接受移動 drop
           const block=document.createElement('div');
           block.className='slot-block empty';
           block.style.height=`${ROW_H}px`;
-          block.style.cursor='default';
-          block.style.pointerEvents='none';
           if(day===6) block.style.background='rgba(167,139,250,.06)';
+          block.addEventListener('dragover',e=>{
+            if(movingCourseId){ e.preventDefault(); block.classList.add('dragover'); }
+          });
+          block.addEventListener('dragleave',()=>block.classList.remove('dragover'));
+          block.addEventListener('drop',e=>{
+            e.preventDefault(); block.classList.remove('dragover');
+            if(movingCourseId){
+              moveEntry(movingCourseId, day, period.id);
+              movingCourseId=null; movingFromEntry=null;
+            }
+          });
           cell.appendChild(block);
         }
       }
@@ -1227,12 +1352,20 @@ function renderCourseList(){
       div.addEventListener('dragstart',e=>{ dragCourseId=co.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain',co.id); });
       div.addEventListener('dragend',()=>{ dragCourseId=null; div.classList.remove('dragging'); document.querySelectorAll('.slot-block.dragover').forEach(s=>s.classList.remove('dragover')); });
     }
-    // 所有課程（包含預設）都可刪除
+    // 所有課程（包含預設）都可編輯和刪除
+    // 用 dataset 傳 courseId，完全避免 closure 問題
+    div.dataset.courseId=co.id;
+    const editBtn=document.createElement('button');
+    editBtn.className='course-edit-btn';
+    editBtn.textContent='編輯';
+    editBtn.dataset.cid=co.id;
+    editBtn.onclick=function(e){ e.stopPropagation(); openEditModal(this.dataset.cid); };
+    div.appendChild(editBtn);
     const delBtn=document.createElement('button');
     delBtn.className='course-del-btn';
     delBtn.textContent='刪除';
-    delBtn.title='從課程列表移除（不影響其他班）';
-    delBtn.onclick=(e)=>{ e.stopPropagation(); deleteCourse(co.id); };
+    delBtn.dataset.cid=co.id;
+    delBtn.onclick=function(e){ e.stopPropagation(); deleteCourse(this.dataset.cid); };
     div.appendChild(delBtn);
     el.appendChild(div);
   }
@@ -1583,29 +1716,127 @@ function deleteRoom(rid){
 //  ADD CUSTOM COURSE
 // ══════════════════════════════════════════
 // ── Teacher tag-input state ──
-let selectedTeacherTags = []; // [{id, name}]
+// ── 新增/編輯課程 modal 狀態 ──
+let editingCourseId = null;   // null=新增, 有值=編輯
+let addingToClassId = null;   // 新增模式時鎖定的班級
+
+function _initCourseModal(){
+  document.getElementById('m-name').value='';
+  document.getElementById('m-credits').value='2';
+  // reset type selector
+  const typeSel=document.getElementById('m-type');
+  typeSel.selectedIndex=0;
+  document.getElementById('m-teacher-search').value='';
+  selectedTeacherTags=[];
+  renderTeacherTags();
+  closeTeacherDropdown();
+}
 
 function openAddModal(){
-  const sel=document.getElementById('m-class'); sel.innerHTML='';
+  editingCourseId=null;
+  addingToClassId=selectedClassId;   // 鎖定在目前左側選中的班級
+
+  document.getElementById('modal-course-title').textContent='新增課程';
+  document.getElementById('modal-course-btn').textContent='新增';
+
+  // 顯示鎖定班級，隱藏 dropdown
+  const cls=cmap[addingToClassId];
+  document.getElementById('m-class-locked').textContent= cls ? cls.name : '（未知班級）';
+  document.getElementById('m-class-locked').style.display='';
+  document.getElementById('m-class').style.display='none';
+
+  _initCourseModal();
+  document.getElementById('add-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('m-name').focus(),50);
+}
+
+function openEditModal(courseId){
+  const cm=comap(); const co=cm[courseId]; if(!co) return;
+  editingCourseId=courseId;
+  addingToClassId=null;
+
+  document.getElementById('modal-course-title').textContent='編輯課程';
+  document.getElementById('modal-course-btn').textContent='儲存';
+
+  // 編輯模式：顯示 dropdown 允許換班
+  document.getElementById('m-class-locked').style.display='none';
+  const sel=document.getElementById('m-class');
+  sel.style.display='';
+  sel.innerHTML='';
   for(const cls of CLASSES){
     const opt=document.createElement('option');
     opt.value=cls.id; opt.textContent=cls.name;
-    if(cls.id===selectedClassId) opt.selected=true;
+    if(cls.id===co.classId) opt.selected=true;
     sel.appendChild(opt);
   }
-  document.getElementById('m-name').value='';
+
+  document.getElementById('m-name').value=co.name;
+  document.getElementById('m-credits').value=String(co.credits);
+  document.getElementById('m-type').value=co.type;
+  selectedTeacherTags=(co.teachers||[]).map(tid=>({id:tid,name:getTName(tid)}));
   document.getElementById('m-teacher-search').value='';
-  selectedTeacherTags=[];
   renderTeacherTags();
   closeTeacherDropdown();
   document.getElementById('add-modal').style.display='flex';
   setTimeout(()=>document.getElementById('m-name').focus(),50);
 }
+
 function closeAddModal(){
   document.getElementById('add-modal').style.display='none';
   closeTeacherDropdown();
+  editingCourseId=null;
+  addingToClassId=null;
 }
 function closeModalOutside(e){ if(e.target===document.getElementById('add-modal')) closeAddModal(); }
+
+function confirmCourse(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){ showToast('⚠ 請輸入課程名稱'); return; }
+
+  const typed=document.getElementById('m-teacher-search').value.trim();
+  if(typed) addNewTeacherTag(typed);
+
+  const credits=parseInt(document.getElementById('m-credits').value);
+  const type=document.getElementById('m-type').value;
+  const teacherIds=selectedTeacherTags.map(t=>t.id);
+
+  if(editingCourseId){
+    // ── 編輯模式：允許換班 ──
+    const cm=comap(); const co=cm[editingCourseId]; if(!co) return;
+    const oldClassId=co.classId;
+    const newClassId=document.getElementById('m-class').value;
+
+    co.name=name; co.credits=credits; co.type=type; co.teachers=teacherIds;
+
+    if(newClassId!==oldClassId){
+      // 把 schedule entry 搬到新班
+      if(isPlaced(editingCourseId)){
+        const entry=schedule[oldClassId]?.find(e=>e.courseId===editingCourseId);
+        if(entry){
+          schedule[oldClassId]=schedule[oldClassId].filter(e=>e.courseId!==editingCourseId);
+          if(!schedule[newClassId]) schedule[newClassId]=[];
+          schedule[newClassId].push(entry);
+        }
+      }
+      co.classId=newClassId;
+      selectedClassId=newClassId;
+    }
+    closeAddModal();
+    render(); detectConflicts();
+    showToast(`✓ 已更新「${name}」`);
+
+  } else {
+    // ── 新增模式：班級固定為 addingToClassId ──
+    const classId=addingToClassId;
+    if(!classId||!cmap[classId]){ showToast('⚠ 班級異常，請關閉重試'); return; }
+    const newId=nextCourseId();
+    COURSES.push({id:newId,name,classId,credits,type,teachers:teacherIds,custom:true});
+    closeAddModal();
+    selectedClassId=classId;   // 確保留在此班
+    render();
+    showToast(`✓ 已新增「${name}」至${cmap[classId].name}`);
+  }
+}
 
 // Render tags inside the wrap
 function renderTeacherTags(){
@@ -1640,10 +1871,10 @@ function addTeacherTag(teacher){
 
 function addNewTeacherTag(name){
   name=name.trim(); if(!name) return;
-  // Check if already in system
   let t=TEACHERS.find(t=>t.name===name);
   if(!t){
-    const newId=`TX${customCourseCounter++}`;
+    // 用 timestamp 確保唯一性
+    const newId=`TX${Date.now()}`;
     t={id:newId,name,type:'兼任'};
     TEACHERS.push(t); tmap[newId]=t;
     showToast(`✓ 已新增教師「${name}」（兼任）`);
@@ -1710,36 +1941,17 @@ document.addEventListener('click', e=>{
   if(!e.target.closest('#m-teacher-wrap')&&!e.target.closest('#m-teacher-dropdown')) closeTeacherDropdown();
 });
 
-function confirmAddCourse(){
-  const name=document.getElementById('m-name').value.trim();
-  if(!name){ showToast('⚠ 請輸入課程名稱'); return; }
-  const classId=document.getElementById('m-class').value;
-  const credits=parseInt(document.getElementById('m-credits').value);
-  const type=document.getElementById('m-type').value;
-
-  // Also accept anything still typed in search box
-  const typed=document.getElementById('m-teacher-search').value.trim();
-  if(typed) addNewTeacherTag(typed);
-
-  const teacherIds=selectedTeacherTags.map(t=>t.id);
-
-  const newId=`CX${customCourseCounter++}`;
-  COURSES.push({id:newId,name,classId,credits,type,teachers:teacherIds,custom:true});
-  closeAddModal();
-  selectedClassId=classId;
-  render();
-  showToast(`✓ 已新增「${name}」至${cmap[classId]?.name}`);
-}
-
-// 統一刪除函式：所有課程（含預設）都可刪
+// 統一刪除函式：從課程列表永久刪除（含已排的 schedule）
 function deleteCourse(courseId){
   const cm=comap(); const co=cm[courseId];
   if(!co) return;
-  const msg=`確定要從課程列表刪除「${co.name}」嗎？${isPlaced(courseId)?'（此課程已排入課表，將一併移除）':''}`;
+  const placed=isPlaced(courseId);
+  const msg=`確定要從課程列表刪除「${co.name}」嗎？${placed?'（此課程已排入課表，將一併移除）':''}`;
   if(!confirm(msg)) return;
-  if(isPlaced(courseId)) removeCourse(courseId);
-  COURSES=COURSES.filter(c=>c.id!==courseId);
-  render(); showToast(`已刪除「${co.name}」`);
+  if(placed) removeCourse(courseId);        // 先清 schedule
+  COURSES=COURSES.filter(c=>c.id!==courseId); // 再從課程列表移除
+  render(); detectConflicts();
+  showToast(`已刪除「${co.name}」`);
 }
 
 // ══════════════════════════════════════════
@@ -2070,5 +2282,245 @@ function showToast(msg){ const t=document.getElementById('toast'); t.textContent
 // ══════════════════════════════════════════
 render();
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+// ══════════════════════════════════════════
+//  WORD EXPORT
+// ══════════════════════════════════════════
+
+// Toggle export dropdown
+function toggleExportMenu(){
+  const m=document.getElementById('export-menu');
+  m.style.display=m.style.display==='none'?'block':'none';
+}
+document.addEventListener('click',e=>{
+  if(!document.getElementById('export-word-wrap')?.contains(e.target))
+    document.getElementById('export-menu').style.display='none';
+});
+
+// Period metadata (id → label + time string)
+const PINFO={
+  1:{t:'08:10-09:00'},2:{t:'09:10-10:00'},3:{t:'10:10-11:00'},4:{t:'11:10-12:00'},
+  5:{t:'13:30-14:20'},6:{t:'14:30-15:20'},7:{t:'15:30-16:20'},8:{t:'16:30-17:20'},
+  9:{t:'17:30-18:20'},A:{t:'18:30-19:20'},B:{t:'19:25-20:15'},C:{t:'20:20-21:10'},D:{t:'21:15-22:05'}
+};
+const ALL_PIDS=[1,2,3,4,5,6,7,8,9,'A','B','C','D'];
+const DAYS5=[1,2,3,4,5];
+const DAYS6=[1,2,3,4,5,6];
+const DLABELS={1:'週一',2:'週二',3:'週三',4:'週四',5:'週五',6:'週六'};
+
+function xe(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// Build a timetable cell XML
+function wCell(text, {w=1500,bold=false,bg='',fs=18,valign='center'}={}){
+  const bdr='<w:top w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:left w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:bottom w:val="single" w:sz="4" w:space="0" w:color="auto"/><w:right w:val="single" w:sz="4" w:space="0" w:color="auto"/>';
+  const shd=bg?`<w:shd w:val="clear" w:color="auto" w:fill="${bg}"/>`:'';
+  const b=bold?'<w:b/>':'';
+  // Support newlines → multiple paragraphs
+  const lines=String(text||'').split('\n');
+  const paras=lines.map((ln,i)=>{
+    const sp=i===0?'':`<w:spacing w:before="0" w:after="0"/>`;
+    return `<w:p><w:pPr><w:jc w:val="center"/><w:rPr>${b}<w:sz w:val="${fs}"/><w:szCs w:val="${fs}"/></w:rPr></w:pPr><w:r><w:rPr>${b}<w:sz w:val="${fs}"/><w:szCs w:val="${fs}"/></w:rPr><w:t xml:space="preserve">${xe(ln)}</w:t></w:r></w:p>`;
+  }).join('');
+  return `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/><w:tcBorders>${bdr}</w:tcBorders>${shd}<w:vAlign w:val="${valign}"/></w:tcPr>${paras}</w:tc>`;
+}
+
+function wRow(cells, height=480){
+  return `<w:tr><w:trPr><w:trHeight w:val="${height}"/><w:cantSplit/></w:trPr>${cells}</w:tr>`;
+}
+
+// Build slot lookup: day → periodId → display info
+function makeSlotLookup(filterFn){
+  const cm={};
+  COURSES.forEach(c=>{ cm[c.id]=c; });
+  const lookup={};
+  for(const cls of CLASSES){
+    for(const entry of (schedule[cls.id]||[])){
+      if(!filterFn(entry,cls)) continue;
+      const co=cm[entry.courseId]; if(!co) continue;
+      const rm=entry.roomId?ROOMS.find(r=>r.id===entry.roomId):null;
+      entry.slots.forEach((pid,i)=>{
+        if(!lookup[entry.day]) lookup[entry.day]={};
+        lookup[entry.day][pid]=i===0
+          ? {name:co.name,teachers:co.teachers.map(tid=>tmap[tid]?.name||tid).join('、'),
+             className:cls.name,roomName:rm?.name||'',span:entry.slots.length,first:true}
+          : {cont:true};
+      });
+    }
+  }
+  return lookup;
+}
+
+// Build all table rows XML for one timetable
+function buildRows(days, lookup, colW, labelW, timeW, numW){
+  const rows=[];
+  // Header
+  const hdrCells=wCell('',{w:labelW,bold:true,bg:'D9D9D9'})
+    +wCell('時間',{w:timeW,bold:true,bg:'D9D9D9'})
+    +wCell('節',{w:numW,bold:true,bg:'D9D9D9'})
+    +days.map(d=>wCell(DLABELS[d]||`週${d}`,{w:colW,bold:true,bg:'D9D9D9'})).join('');
+  rows.push(wRow(hdrCells,440));
+
+  for(const pid of ALL_PIDS){
+    // Noon divider before period 5
+    if(pid===5){
+      const nCells=wCell('午休',{w:labelW,bold:true,bg:'F0F0F0',fs:16})
+        +wCell('12:00-13:30',{w:timeW,bg:'F0F0F0',fs:14})
+        +wCell('',{w:numW,bg:'F0F0F0'})
+        +days.map(()=>wCell('',{w:colW,bg:'F0F0F0'})).join('');
+      rows.push(wRow(nCells,300));
+    }
+    const pinfo=PINFO[pid];
+    const labelCells=wCell('',{w:labelW,bg:'FAFAFA'})
+      +wCell(pinfo.t,{w:timeW,bg:'FAFAFA',fs:14})
+      +wCell(String(pid),{w:numW,bold:true,bg:'F0F0F0',fs:16});
+
+    const dayCells=days.map(day=>{
+      const slot=lookup[day]?.[pid];
+      if(!slot) return wCell('',{w:colW});
+      if(slot.cont) return wCell('',{w:colW,bg:'EBF3FB'}); // continuation
+      // Build cell lines based on what view this is
+      const lines=[slot.name];
+      if(slot.teachers) lines.push(slot.teachers);
+      if(slot.roomName) lines.push('📍'+slot.roomName);
+      if(slot.className) lines.push('['+slot.className+']');
+      return wCell(lines.join('\n'),{w:colW,bg:'EBF3FB',fs:16});
+    }).join('');
+
+    rows.push(wRow(labelCells+dayCells,480));
+  }
+  return rows.join('');
+}
+
+// Generate one .docx blob from multiple sections (one per page)
+async function makeDocx(sections){
+  if(typeof JSZip==='undefined') throw new Error('JSZip 尚未載入，請稍後再試或檢查網路連線');
+
+  const PAGE_W=16838, PAGE_H=11906, MARGIN=500; // landscape A4, tight margins
+
+  let body='';
+  sections.forEach((sec,i)=>{
+    if(i>0) body+=`<w:p><w:r><w:br w:type="page"/></w:r></w:p>`;
+    body+=`<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="60"/></w:pPr>
+      <w:r><w:rPr><w:b/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr>
+      <w:t>國立高雄科技大學-供應鏈管理系　115學年度第1學期　${xe(sec.title)}　課程表</w:t></w:r></w:p>`;
+    body+=`<w:tbl>
+      <w:tblPr>
+        <w:tblW w:w="0" w:type="auto"/>
+        <w:tblBorders>
+          <w:insideH w:val="single" w:sz="4" w:space="0" w:color="AAAAAA"/>
+          <w:insideV w:val="single" w:sz="4" w:space="0" w:color="AAAAAA"/>
+        </w:tblBorders>
+        <w:tblLayout w:type="fixed"/>
+        <w:tblCellMar><w:top w:w="40" w:type="dxa"/><w:left w:w="60" w:type="dxa"/><w:bottom w:w="40" w:type="dxa"/><w:right w:w="60" w:type="dxa"/></w:tblCellMar>
+      </w:tblPr>
+      ${sec.tableRows}
+    </w:tbl>`;
+  });
+
+  const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+            xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+${body}
+<w:sectPr>
+  <w:pgSz w:w="${PAGE_H}" w:h="${PAGE_W}" w:orient="landscape"/>
+  <w:pgMar w:top="${MARGIN}" w:right="${MARGIN}" w:bottom="${MARGIN}" w:left="${MARGIN}"/>
+</w:sectPr>
+</w:body>
+</w:document>`;
+
+  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+</Types>`;
+
+  const rels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+</Relationships>`;
+
+  const zip=new JSZip();
+  zip.file('[Content_Types].xml', contentTypes);
+  zip.file('_rels/.rels', rels);
+  zip.file('word/document.xml', docXml);
+  zip.file('word/_rels/document.xml.rels',
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
+
+  return zip.generateAsync({
+    type:'blob',
+    mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+  });
+}
+
+async function exportWord(type){
+  document.getElementById('export-menu').style.display='none';
+  showToast('正在產生 Word 檔案…');
+
+  try{
+    const sections=[];
+
+    if(type==='class'){
+      for(const cls of CLASSES){
+        const days=(cls.type==='day'||cls.type==='grad')?DAYS5:DAYS6;
+        const nDays=days.length;
+        // landscape A4 usable width (DXA): 11906 - 2*500 = 10906
+        const usable=10906;
+        const labelW=360, timeW=1000, numW=320;
+        const colW=Math.floor((usable-labelW-timeW-numW)/nDays);
+        const lookup=makeSlotLookup((entry,c)=>c.id===cls.id);
+        sections.push({title:cls.name, tableRows:buildRows(days,lookup,colW,labelW,timeW,numW)});
+      }
+      const blob=await makeDocx(sections);
+      dlBlob(blob,`SCM班級課表_${yyyymmdd()}.docx`);
+
+    } else if(type==='teacher'){
+      for(const t of TEACHERS){
+        const lookup=makeSlotLookup((entry)=>{
+          const co=COURSES.find(c=>c.id===entry.courseId);
+          return co?.teachers.includes(t.id);
+        });
+        if(!Object.keys(lookup).length) continue;
+        const usable=10906;
+        const labelW=360, timeW=1000, numW=320;
+        const colW=Math.floor((usable-labelW-timeW-numW)/6);
+        sections.push({title:`${t.name}（${t.type}）`, tableRows:buildRows(DAYS6,lookup,colW,labelW,timeW,numW)});
+      }
+      if(!sections.length){ showToast('⚠ 尚無教師已排課'); return; }
+      const blob=await makeDocx(sections);
+      dlBlob(blob,`SCM教師課表_${yyyymmdd()}.docx`);
+
+    } else if(type==='room'){
+      for(const room of ROOMS){
+        const lookup=makeSlotLookup(entry=>entry.roomId===room.id);
+        if(!Object.keys(lookup).length) continue;
+        const usable=10906;
+        const labelW=360, timeW=1000, numW=320;
+        const colW=Math.floor((usable-labelW-timeW-numW)/6);
+        sections.push({title:`教室 ${room.name}`, tableRows:buildRows(DAYS6,lookup,colW,labelW,timeW,numW)});
+      }
+      if(!sections.length){ showToast('⚠ 尚無教室已排課'); return; }
+      const blob=await makeDocx(sections);
+      dlBlob(blob,`SCM教室課表_${yyyymmdd()}.docx`);
+    }
+
+    showToast('✓ Word 檔案已下載');
+  } catch(err){
+    console.error('匯出失敗:', err);
+    showToast('⚠ 匯出失敗：'+err.message);
+  }
+}
+
+function dlBlob(blob, filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=filename; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000);
+}
+
+function yyyymmdd(){ return new Date().toISOString().slice(0,10); }
+</script>
+
 </body>
 </html>
