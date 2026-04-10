@@ -224,7 +224,37 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 /* delete btn on course items */
 .course-del-btn{position:absolute;right:6px;bottom:5px;font-size:9px;color:var(--text3);cursor:pointer;padding:1px 5px;border-radius:3px;border:1px solid var(--border);background:transparent;font-family:inherit;transition:all .12s;}
 .course-del-btn:hover{color:var(--red2);border-color:var(--red);}
-</style>
+
+/* ── CLASSROOM VIEW ── */
+.room-selector{display:flex;flex-wrap:wrap;gap:4px;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
+.room-chip{font-size:11px;padding:3px 9px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .12s;font-family:inherit;}
+.room-chip:hover{border-color:var(--border2);color:var(--text);}
+.room-chip.active{background:rgba(45,212,191,.15);border-color:var(--teal);color:var(--teal);}
+.room-chip.has-conflict{border-color:var(--red);color:var(--red2);}
+.cc-room{background:rgba(45,212,191,.18);color:#7ffff4;}
+.room-badge{display:inline-block;font-size:9px;background:rgba(45,212,191,.15);color:var(--teal);border-radius:3px;padding:1px 5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+
+/* ── ROOM PICKER POPUP ── */
+.room-picker{position:fixed;background:var(--bg2);border:1px solid var(--border2);border-radius:10px;padding:14px 16px;z-index:5000;min-width:240px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;}
+.room-picker.open{display:block;}
+.room-picker-title{font-size:12px;font-weight:600;margin-bottom:10px;color:var(--text);}
+.room-picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:10px;}
+.room-pick-btn{padding:6px 8px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:11px;cursor:pointer;text-align:left;font-family:inherit;transition:all .12s;}
+.room-pick-btn:hover{border-color:var(--teal);color:var(--teal);background:rgba(45,212,191,.08);}
+.room-pick-btn.unavail{opacity:.35;cursor:not-allowed;text-decoration:line-through;}
+.room-picker-skip{font-size:11px;color:var(--text3);cursor:pointer;text-align:center;padding:4px;border-radius:5px;}
+.room-picker-skip:hover{color:var(--text2);background:var(--surface);}
+
+/* ── CONFLICT ALERT ── */
+.conflict-alert-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:6000;display:none;align-items:center;justify-content:center;}
+.conflict-alert-overlay.open{display:flex;}
+.conflict-alert{background:var(--bg2);border:1px solid rgba(245,101,101,.5);border-radius:12px;padding:20px 22px;max-width:420px;width:90%;}
+.conflict-alert-icon{font-size:24px;margin-bottom:10px;}
+.conflict-alert-title{font-size:14px;font-weight:700;color:var(--red2);margin-bottom:8px;}
+.conflict-alert-body{font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:16px;}
+.conflict-alert-actions{display:flex;gap:8px;justify-content:flex-end;}
+.btn-keep{padding:5px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;cursor:pointer;font-family:inherit;}
+.btn-undo{padding:5px 14px;border-radius:6px;border:1px solid var(--red);background:rgba(245,101,101,.12);color:var(--red2);font-size:12px;cursor:pointer;font-family:inherit;}</style>
 </head>
 <body>
 <div class="tooltip" id="tip"></div>
@@ -261,6 +291,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <button class="btn danger" onclick="clearAll()">✕ 清除全部</button>
     <button class="btn" onclick="openTeacherMgr()">👤 管理教師</button>
     <button class="btn" onclick="openClassMgr()">🏫 管理班級</button>
+    <button class="btn" onclick="openRoomMgr()">🚪 管理教室</button>
     <button class="btn" onclick="exportBackup()">↓ 匯出備份</button>
     <label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;">
       ↑ 匯入備份
@@ -270,6 +301,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <div class="view-toggle">
       <button class="vt-btn active" id="vt-class"   onclick="setView('class')">班級課表</button>
       <button class="vt-btn"        id="vt-teacher" onclick="setView('teacher')">教師課表</button>
+      <button class="vt-btn"        id="vt-room"    onclick="setView('room')">教室課表</button>
       <button class="vt-btn"        id="vt-load"    onclick="setView('load')">教師負載</button>
     </div>
   </div>
@@ -297,6 +329,12 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
     <div id="view-teacher" style="flex:1;overflow:hidden;display:flex;flex-direction:column;display:none;">
       <div class="teacher-selector" id="teacher-selector"></div>
       <div class="teacher-grid-area" id="teacher-grid-area"></div>
+    </div>
+
+    <!-- Room view -->
+    <div id="view-room" style="flex:1;overflow:hidden;display:none;flex-direction:column;">
+      <div class="room-selector" id="room-selector"></div>
+      <div class="teacher-grid-area" id="room-grid-area"></div>
     </div>
 
     <!-- Load view: teacher panel only -->
@@ -434,6 +472,64 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   </div>
 </div>
 
+<!-- ══ ROOM PICKER POPUP ══ -->
+<div class="room-picker" id="room-picker">
+  <div class="room-picker-title">選擇教室（可略過）</div>
+  <div class="room-picker-grid" id="room-picker-grid"></div>
+  <div class="room-picker-skip" onclick="skipRoomPick()">略過，不指定教室</div>
+</div>
+
+<!-- ══ CONFLICT ALERT ══ -->
+<div class="conflict-alert-overlay" id="conflict-alert-overlay">
+  <div class="conflict-alert">
+    <div class="conflict-alert-icon">⚠️</div>
+    <div class="conflict-alert-title" id="ca-title">排課衝堂警告</div>
+    <div class="conflict-alert-body" id="ca-body"></div>
+    <div class="conflict-alert-actions">
+      <button class="btn-undo" onclick="undoLastPlace()">↩ 取消此次排課</button>
+      <button class="btn-keep" onclick="closeConflictAlert()">保留（手動處理）</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ROOM MANAGER MODAL ══ -->
+<div class="modal-overlay" id="room-mgr-modal" style="display:none" onclick="if(event.target===this)closeRoomMgr()">
+  <div class="modal" style="width:460px;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">教室管理</div>
+      <button class="btn primary" onclick="openAddRoom()" style="font-size:11px;padding:4px 10px;">＋ 新增教室</button>
+    </div>
+    <div id="add-room-form" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;">新增教室</div>
+      <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end;">
+        <div>
+          <label class="form-label">教室編號/名稱</label>
+          <input class="form-input" id="nr-name" placeholder="例：2507、B101" />
+        </div>
+        <div style="display:flex;gap:6px;padding-bottom:1px;">
+          <button class="btn primary" onclick="confirmAddRoom()">新增</button>
+          <button class="btn" onclick="document.getElementById('add-room-form').style.display='none'">取消</button>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="background:var(--surface);border-bottom:1px solid var(--border);">
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">教室</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">已用節次</th>
+            <th style="padding:7px 4px;"></th>
+          </tr>
+        </thead>
+        <tbody id="room-mgr-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn" onclick="closeRoomMgr()">關閉</button>
+    </div>
+  </div>
+</div>
+
 <!-- ══ TEACHER MANAGER MODAL ══ -->
 <div class="modal-overlay" id="teacher-mgr-modal" style="display:none" onclick="closeTMgrOutside(event)">
   <div class="modal" style="width:460px;max-height:88vh;display:flex;flex-direction:column;">
@@ -513,6 +609,15 @@ const CLASSES = [
   {id:'C07',name:'進供四甲',type:'eve', grade:4},
   {id:'C08',name:'碩一',    type:'grad',grade:1},
   {id:'C09',name:'碩專一',  type:'prof',grade:1},
+];
+
+// 教室資料
+let ROOMS = [
+  {id:'R01',name:'2507'},
+  {id:'R02',name:'2508'},
+  {id:'R03',name:'2503'},
+  {id:'R04',name:'2504'},
+  {id:'R05',name:'2501'},
 ];
 
 // 更新後課程 (2026.4.9 版本)
@@ -647,19 +752,22 @@ function getClassDays(cls){
 // ══════════════════════════════════════════
 //  STATE
 // ══════════════════════════════════════════
-let schedule = {}; // classId → [{courseId, day, slots:[periodId,...]}]
+let schedule = {}; // classId → [{courseId, day, slots:[periodId,...], roomId:null}]
 CLASSES.forEach(c => { schedule[c.id] = []; });
 
 let selectedClassId = 'C01';
 let selectedTeacherId = 'T01';
+let selectedRoomId = null;   // for room view
 let currentView = 'class';
 let dragCourseId = null;
 let conflicts = [];
+let lastPlaced = null;       // {classId, entry} for undo
 
 // ── Lookup maps ──
 const tmap = Object.fromEntries(TEACHERS.map(t=>[t.id,t]));
 const cmap = Object.fromEntries(CLASSES.map(c=>[c.id,c]));
 const comap = () => Object.fromEntries(COURSES.map(c=>[c.id,c]));
+const rmap = () => Object.fromEntries(ROOMS.map(r=>[r.id,r]));
 
 function getTName(tid){ return tmap[tid]?.name||tid; }
 function getClassCc(type){ return {day:'cc-day',eve:'cc-eve',grad:'cc-grad',prof:'cc-prof'}[type]||'cc-custom'; }
@@ -735,19 +843,24 @@ function isSpanFree(classId,day,span){
   return true;
 }
 
-// Teacher busy check: is teacher tid busy on day d at period p?
-function isTeacherBusy(tid, day, period){
-  const cm=comap();
+// ── Room helpers ──
+function isRoomBusy(roomId, day, slots){
   for(const cls of CLASSES){
     for(const e of schedule[cls.id]){
-      if(e.day!==day) continue;
-      if(!e.slots.includes(period)) continue;
-      const co=cm[e.courseId];
-      if(co?.teachers.includes(tid)) return e;
+      if(e.roomId!==roomId||e.day!==day) continue;
+      for(const s of slots) if(e.slots.includes(s)) return e;
     }
   }
   return null;
 }
+function getRoomUsedSlots(roomId){
+  let n=0;
+  for(const cls of CLASSES) for(const e of schedule[cls.id]) if(e.roomId===roomId) n+=e.slots.length;
+  return n;
+}
+
+// Pending placement while room picker is open
+let pendingPlace=null;
 
 // ══════════════════════════════════════════
 //  PLACE / REMOVE
@@ -760,24 +873,93 @@ function placeCourse(courseId, classId, day, startP){
   const span=getSpan(cls,startP,co.credits);
   if(!span){ showToast(`⚠ 此格無法容納 ${co.credits} 節連排（超出範圍或跨越午休）`); return false; }
   if(!isSpanFree(classId,day,span)){ showToast('⚠ 該時段已有課程'); return false; }
-  schedule[classId].push({courseId,day,slots:span});
-  render();
+  // Store pending and open room picker
+  pendingPlace={courseId,classId,day,slots:span};
+  openRoomPicker(day,span);
   return true;
+}
+
+function finalizePlacement(roomId){
+  if(!pendingPlace) return;
+  const {courseId,classId,day,slots}=pendingPlace;
+  pendingPlace=null;
+  const entry={courseId,day,slots,roomId:roomId||null};
+  schedule[classId].push(entry);
+  lastPlaced={classId,entry};
+  render();
+  const newConflicts=detectConflicts();
+  const fresh=newConflicts.filter(c=>c.affected.some(a=>a.courseId===courseId));
+  if(fresh.length>0){
+    const lines=fresh.map(c=>`• ${c.msg}`).join('\n');
+    const hasRoom=fresh.some(c=>c.type==='room');
+    const hasTch=fresh.some(c=>c.type==='teacher');
+    const title=hasRoom&&hasTch?'教師 & 教室衝堂警告':hasRoom?'教室衝堂警告':'教師衝堂警告';
+    showConflictAlert(title,lines);
+  }
+}
+
+function undoLastPlace(){
+  if(!lastPlaced) return;
+  const {classId,entry}=lastPlaced;
+  schedule[classId]=schedule[classId].filter(e=>e!==entry);
+  lastPlaced=null;
+  closeConflictAlert();
+  render(); detectConflicts();
+  showToast('已取消排課');
 }
 
 function removeCourse(courseId){
   const cm=comap(); const co=cm[courseId]; if(!co) return;
   schedule[co.classId]=schedule[co.classId].filter(e=>e.courseId!==courseId);
-  render(); showToast('已移除課程');
+  render(); detectConflicts(); showToast('已移除課程');
 }
 
 // ══════════════════════════════════════════
-//  CONFLICT DETECTION
+//  ROOM PICKER
+// ══════════════════════════════════════════
+function openRoomPicker(day,slots){
+  const picker=document.getElementById('room-picker');
+  const grid=document.getElementById('room-picker-grid');
+  grid.innerHTML='';
+  for(const room of ROOMS){
+    const busy=isRoomBusy(room.id,day,slots);
+    const btn=document.createElement('button');
+    btn.className='room-pick-btn'+(busy?' unavail':'');
+    btn.innerHTML=`<strong>${room.name}</strong>${busy?`<br><span style="font-size:9px;color:var(--red2)">已被佔用</span>`:''}`;
+    if(!busy) btn.onclick=()=>{ closeRoomPickerUI(); finalizePlacement(room.id); };
+    grid.appendChild(btn);
+  }
+  picker.style.cssText='top:50%;left:50%;transform:translate(-50%,-50%);';
+  picker.classList.add('open');
+  setTimeout(()=>document.addEventListener('click',outsideRoomPickerClose,{once:true,capture:true}),120);
+}
+function outsideRoomPickerClose(e){
+  if(!document.getElementById('room-picker').contains(e.target)) skipRoomPick();
+}
+function skipRoomPick(){ closeRoomPickerUI(); finalizePlacement(null); }
+function closeRoomPickerUI(){
+  document.getElementById('room-picker').classList.remove('open');
+  document.removeEventListener('click',outsideRoomPickerClose,true);
+}
+
+// ══════════════════════════════════════════
+//  CONFLICT ALERT
+// ══════════════════════════════════════════
+function showConflictAlert(title,body){
+  document.getElementById('ca-title').textContent=title;
+  document.getElementById('ca-body').innerHTML=body.replace(/\n/g,'<br>');
+  document.getElementById('conflict-alert-overlay').classList.add('open');
+}
+function closeConflictAlert(){ document.getElementById('conflict-alert-overlay').classList.remove('open'); }
+
+// ══════════════════════════════════════════
+//  CONFLICT DETECTION (teacher + room)
 // ══════════════════════════════════════════
 function detectConflicts(){
   conflicts=[];
   const cm=comap();
-  const tslots={}; // tid → [{classId,day,period,courseId}]
+  // Teacher conflicts
+  const tslots={};
   for(const cls of CLASSES){
     for(const e of schedule[cls.id]){
       const co=cm[e.courseId]; if(!co) continue;
@@ -792,10 +974,32 @@ function detectConflicts(){
     for(const s of slots){
       const k=`${s.day}_${s.period}`;
       if(seen[k]&&seen[k].courseId!==s.courseId){
-        const a=cm[s.courseId], b=cm[seen[k].courseId];
-        const msg=`${getTName(tid)}：${cmap[s.classId]?.name}「${a?.name}」 vs ${cmap[seen[k].classId]?.name}「${b?.name}」週${s.day} 第${s.period}節`;
+        const a=cm[s.courseId],b=cm[seen[k].courseId];
+        const msg=`教師 ${getTName(tid)}：${cmap[s.classId]?.name}「${a?.name}」 vs ${cmap[seen[k].classId]?.name}「${b?.name}」週${s.day} 第${s.period}節`;
         if(!conflicts.find(c=>c.msg===msg))
           conflicts.push({type:'teacher',msg,tid,affected:[{classId:s.classId,courseId:s.courseId},{classId:seen[k].classId,courseId:seen[k].courseId}]});
+      } else if(!seen[k]) seen[k]=s;
+    }
+  }
+  // Room conflicts
+  const rslots={};
+  for(const cls of CLASSES){
+    for(const e of schedule[cls.id]){
+      if(!e.roomId) continue;
+      if(!rslots[e.roomId]) rslots[e.roomId]=[];
+      for(const p of e.slots) rslots[e.roomId].push({classId:cls.id,day:e.day,period:p,courseId:e.courseId});
+    }
+  }
+  for(const [rid,slots] of Object.entries(rslots)){
+    const seen={};
+    for(const s of slots){
+      const k=`${s.day}_${s.period}`;
+      if(seen[k]&&seen[k].courseId!==s.courseId){
+        const a=cm[s.courseId],b=cm[seen[k].courseId];
+        const rm=ROOMS.find(r=>r.id===rid);
+        const msg=`教室 ${rm?.name||rid}：${cmap[s.classId]?.name}「${a?.name}」 vs ${cmap[seen[k].classId]?.name}「${b?.name}」週${s.day} 第${s.period}節`;
+        if(!conflicts.find(c=>c.msg===msg))
+          conflicts.push({type:'room',msg,rid,affected:[{classId:s.classId,courseId:s.courseId},{classId:seen[k].classId,courseId:seen[k].courseId}]});
       } else if(!seen[k]) seen[k]=s;
     }
   }
@@ -930,12 +1134,13 @@ function buildTimetable(periods, days, dayLabels, classId_or_null, teacherId_or_
         const card=document.createElement('div');
         card.className=`course-card ${co?.custom?'cc-custom':getClassCc(clsType)}`;
         const teachers=(co?.teachers||[]).slice(0,2).map(getTName).join('/');
-        // In teacher view, show class name instead
         const subtitle=isTeacherView?(cmap[entry.classId]?.name||''):(teachers);
+        const rm=entry.roomId?ROOMS.find(r=>r.id===entry.roomId):null;
         card.innerHTML=`
           <div class="cc-name">${co?.name||''}</div>
           <div class="cc-teacher">${subtitle}</div>
           <div class="cc-credits">${co?.credits}節${co?.type?'·'+co.type:''}</div>
+          ${rm?`<div class="room-badge">🚪${rm.name}</div>`:''}
           ${!isTeacherView?`<div class="cc-remove" onclick="removeCourse('${entry.courseId}')">×</div>`:''}
         `;
         block.addEventListener('mouseenter',e=>showTooltip(e,co,entry,isTeacherView));
@@ -1159,6 +1364,7 @@ function render(){
   detectConflicts();
   if(currentView==='class') renderClassGrid();
   else if(currentView==='teacher') renderTeacherGrid();
+  else if(currentView==='room') renderRoomGrid();
   else renderLoadView();
 }
 
@@ -1169,11 +1375,208 @@ function setView(v){
   currentView=v;
   document.getElementById('view-class').style.display=v==='class'?'flex':'none';
   document.getElementById('view-teacher').style.display=v==='teacher'?'flex':'none';
+  document.getElementById('view-room').style.display=v==='room'?'flex':'none';
   document.getElementById('view-load').style.display=v==='load'?'flex':'none';
-  ['class','teacher','load'].forEach(n=>{
+  ['class','teacher','room','load'].forEach(n=>{
     document.getElementById(`vt-${n}`).className=`vt-btn${v===n?' active':''}`;
   });
   render();
+}
+
+// ══════════════════════════════════════════
+//  ROOM VIEW
+// ══════════════════════════════════════════
+function renderRoomGrid(){
+  if(!selectedRoomId||!ROOMS.find(r=>r.id===selectedRoomId)) selectedRoomId=ROOMS[0]?.id||null;
+
+  // Rebuild room selector
+  const sel=document.getElementById('room-selector'); sel.innerHTML='';
+  const conflictRids=new Set(conflicts.filter(c=>c.type==='room').map(c=>c.rid));
+  for(const room of ROOMS){
+    const btn=document.createElement('button');
+    btn.className=`room-chip${room.id===selectedRoomId?' active':''}${conflictRids.has(room.id)?' has-conflict':''}`;
+    btn.textContent=room.name;
+    btn.onclick=()=>{ selectedRoomId=room.id; renderRoomGrid(); };
+    sel.appendChild(btn);
+  }
+
+  const container=document.getElementById('room-grid-area'); container.innerHTML='';
+  if(!selectedRoomId){ container.innerHTML='<div style="padding:20px;color:var(--text3)">尚無教室，請先在「管理教室」新增</div>'; return; }
+
+  const rm=ROOMS.find(r=>r.id===selectedRoomId);
+  const usedSlots=getRoomUsedSlots(selectedRoomId);
+  const lbl=document.createElement('div'); lbl.className='grid-section-label'; lbl.style.paddingLeft='0';
+  lbl.textContent=`教室 ${rm?.name} ─ 本學期已排 ${usedSlots} 節`;
+  container.appendChild(lbl);
+
+  // Build slot map for this room
+  const cm=comap();
+  const slotMap={};
+  for(const cls of CLASSES){
+    for(const e of schedule[cls.id]){
+      if(e.roomId!==selectedRoomId) continue;
+      if(!slotMap[e.day]) slotMap[e.day]={};
+      for(const p of e.slots) slotMap[e.day][p]={...e,classId:cls.id};
+    }
+  }
+
+  // Render using full 1-13 period timetable, Mon-Sat (教室課表：週一–週六，第1–13節)
+  const ROOM_PERIODS=[
+    {id:1,label:'1',time:'08:10'},{id:2,label:'2',time:'09:10'},
+    {id:3,label:'3',time:'10:10'},{id:4,label:'4',time:'11:10'},
+    {id:5,label:'5',time:'13:30'},{id:6,label:'6',time:'14:30'},
+    {id:7,label:'7',time:'15:30'},{id:8,label:'8',time:'16:30'},
+    {id:9,label:'9',time:'17:30'},
+    {id:'A',label:'A',time:'18:30'},{id:'B',label:'B',time:'19:25'},
+    {id:'C',label:'C',time:'20:20'},{id:'D',label:'D',time:'21:15'},
+  ];
+  const conflictKeys=getConflictCourseKeys();
+  const wrap=document.createElement('div'); wrap.className='timetable-wrap';
+
+  // Header
+  const hdr=document.createElement('div'); hdr.className='tt-header-row';
+  for(const d of ALL_DAYS_SAT){
+    const dh=document.createElement('div'); dh.className='tt-day-hdr';
+    dh.textContent=DAY_LABELS[d];
+    if(d===6) dh.style.cssText='color:var(--purple);font-weight:700;';
+    hdr.appendChild(dh);
+  }
+  wrap.appendChild(hdr);
+
+  const rendered=new Set();
+  for(const period of ROOM_PERIODS){
+    // Noon gap before period 5
+    if(period.id===5){
+      const nr=document.createElement('div'); nr.className='tt-period-row noon-row';
+      const npl=document.createElement('div'); npl.className='period-label';
+      npl.innerHTML=`<span style="font-size:9px;color:var(--text3)">午休</span>`;
+      nr.appendChild(npl);
+      for(const d of ALL_DAYS_SAT){
+        const nc=document.createElement('div'); nc.className='day-cell'; nc.style.height=`${NOON_H}px`;
+        const ns=document.createElement('div'); ns.className='noon-slot'; nc.appendChild(ns); nr.appendChild(nc);
+      }
+      wrap.appendChild(nr);
+    }
+
+    const row=document.createElement('div'); row.className='tt-period-row';
+    const pl=document.createElement('div'); pl.className='period-label';
+    pl.innerHTML=`<span class="pnum">${period.label}</span><span class="ptime">${period.time}</span>`;
+    row.appendChild(pl);
+
+    for(const day of ALL_DAYS_SAT){
+      const cell=document.createElement('div'); cell.className='day-cell'; cell.style.height=`${ROW_H}px`;
+      const entry=slotMap[day]?.[period.id];
+      const rKey=entry?`${day}_${entry.courseId}`:null;
+
+      if(entry&&!rendered.has(rKey)){
+        rendered.add(rKey);
+        const co=cm[entry.courseId];
+        const isConflict=conflictKeys.has(`${entry.classId}__${entry.courseId}`);
+        const n=entry.slots.length;
+        let spanH=n*ROW_H+(n-1)*GAP;
+        // noon crossing check
+        const crossNoon=entry.slots.some(s=>DAY_MORNING.includes(s))&&entry.slots.some(s=>DAY_AFTERNOON.includes(s));
+        if(crossNoon) spanH+=NOON_H+GAP;
+
+        const block=document.createElement('div');
+        block.className='slot-block'+(isConflict?' conflict':'');
+        block.style.height=`${spanH}px`;
+        const cls2=cmap[entry.classId];
+        const card=document.createElement('div');
+        card.className=`course-card ${getClassCc(cls2?.type||'day')}`;
+        const teachers=(co?.teachers||[]).slice(0,2).map(getTName).join('/');
+        card.innerHTML=`
+          <div class="cc-name">${co?.name||''}</div>
+          <div class="cc-teacher">${cls2?.name||''}</div>
+          <div class="cc-credits">${teachers||'未指定'}</div>
+        `;
+        block.addEventListener('mouseenter',e=>showTooltip(e,co,entry,true));
+        block.addEventListener('mouseleave',hideTooltip);
+        block.appendChild(card);
+        cell.appendChild(block);
+      } else if(!entry){
+        const block=document.createElement('div');
+        block.className='slot-block empty';
+        block.style.height=`${ROW_H}px`;
+        block.style.cursor='default'; block.style.pointerEvents='none';
+        if(day===6) block.style.background='rgba(167,139,250,.06)';
+        cell.appendChild(block);
+      }
+      row.appendChild(cell);
+    }
+    wrap.appendChild(row);
+  }
+  container.appendChild(wrap);
+}
+
+// ══════════════════════════════════════════
+//  ROOM MANAGER
+// ══════════════════════════════════════════
+function openRoomMgr(){
+  renderRoomMgrTable();
+  document.getElementById('add-room-form').style.display='none';
+  document.getElementById('nr-name').value='';
+  document.getElementById('room-mgr-modal').style.display='flex';
+}
+function closeRoomMgr(){ document.getElementById('room-mgr-modal').style.display='none'; render(); }
+
+function openAddRoom(){
+  document.getElementById('add-room-form').style.display='block';
+  document.getElementById('nr-name').focus();
+}
+
+function confirmAddRoom(){
+  const name=document.getElementById('nr-name').value.trim();
+  if(!name){ showToast('⚠ 請輸入教室名稱'); return; }
+  if(ROOMS.find(r=>r.name===name)){ showToast('⚠ 教室名稱已存在'); return; }
+  const newId=`R${Date.now()}`;
+  ROOMS.push({id:newId,name});
+  document.getElementById('add-room-form').style.display='none';
+  document.getElementById('nr-name').value='';
+  renderRoomMgrTable();
+  showToast(`✓ 已新增教室「${name}」`);
+}
+
+function renderRoomMgrTable(){
+  const tbody=document.getElementById('room-mgr-body'); tbody.innerHTML='';
+  for(const room of ROOMS){
+    const used=getRoomUsedSlots(room.id);
+    const tr=document.createElement('tr'); tr.style.borderBottom='1px solid var(--border)';
+    tr.innerHTML=`
+      <td style="padding:6px 12px;">
+        <input class="tmgr-input" value="${room.name}" style="width:100px;"
+          onchange="updateRoom('${room.id}','name',this.value)" />
+      </td>
+      <td style="padding:6px 12px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${used} 節</td>
+      <td style="text-align:right;padding-right:10px;">
+        <button class="icon-btn del" onclick="deleteRoom('${room.id}')">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function updateRoom(rid,field,value){
+  const room=ROOMS.find(r=>r.id===rid); if(!room) return;
+  if(field==='name'){
+    value=value.trim();
+    if(!value){ showToast('⚠ 名稱不可為空'); return; }
+    if(ROOMS.find(r=>r.name===value&&r.id!==rid)){ showToast('⚠ 名稱重複'); return; }
+  }
+  room[field]=value;
+  showToast(`已更新教室「${room.name}」`);
+}
+
+function deleteRoom(rid){
+  const room=ROOMS.find(r=>r.id===rid); if(!room) return;
+  const used=getRoomUsedSlots(rid);
+  if(used>0&&!confirm(`教室「${room.name}」已有 ${used} 節排課，刪除後排課記錄中的教室指定將被清除，確定嗎？`)) return;
+  // Clear room from schedule entries
+  for(const cls of CLASSES) for(const e of schedule[cls.id]) if(e.roomId===rid) e.roomId=null;
+  const idx=ROOMS.findIndex(r=>r.id===rid); if(idx>=0) ROOMS.splice(idx,1);
+  if(selectedRoomId===rid) selectedRoomId=ROOMS[0]?.id||null;
+  renderRoomMgrTable();
+  showToast(`已刪除教室「${room.name}」`);
 }
 
 // ══════════════════════════════════════════
@@ -1540,11 +1943,12 @@ function deleteClass(cid){
 // ══════════════════════════════════════════
 function exportBackup(){
   const data={
-    version:1,
+    version:2,
     exportedAt:new Date().toISOString(),
     semester:'115-1',
     teachers:TEACHERS,
     classes:CLASSES,
+    rooms:ROOMS,
     courses:COURSES,
     schedule,
   };
@@ -1570,20 +1974,19 @@ function importBackup(event){
       if(!confirm(`確定載入備份「${file.name}」？目前的排課資料將全部被覆蓋。`)){
         event.target.value=''; return;
       }
-      // Restore all data
       TEACHERS.length=0; data.teachers.forEach(t=>{ TEACHERS.push(t); tmap[t.id]=t; });
       CLASSES.length=0;  data.classes.forEach(c=>{ CLASSES.push(c); cmap[c.id]=c; });
+      // Restore rooms if present
+      ROOMS.length=0; (data.rooms||[]).forEach(r=>ROOMS.push(r));
       COURSES=data.courses;
       Object.keys(schedule).forEach(k=>delete schedule[k]);
       Object.assign(schedule,data.schedule);
-      // Ensure all classes have a schedule entry
       CLASSES.forEach(c=>{ if(!schedule[c.id]) schedule[c.id]=[]; });
       selectedClassId=CLASSES[0]?.id||'';
       selectedTeacherId=TEACHERS[0]?.id||'T01';
-      // Rebuild cmap / tmap fully
+      selectedRoomId=ROOMS[0]?.id||null;
       Object.keys(cmap).forEach(k=>{ if(!data.classes.find(c=>c.id===k)) delete cmap[k]; });
       Object.keys(tmap).forEach(k=>{ if(!data.teachers.find(t=>t.id===k)) delete tmap[k]; });
-      // Reset teacher selector
       document.getElementById('teacher-selector').innerHTML='';
       render();
       showToast(`✓ 備份「${file.name}」載入成功`);
