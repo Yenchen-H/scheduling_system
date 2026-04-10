@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供應鏈管理系 排課系統 115-1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+:root {
+  --bg:#0f1117; --bg2:#161b27; --surface:#232b3e; --surface2:#2a3349;
+  --border:#2e3855; --border2:#3d4f6e;
+  --text:#e8eaf2; --text2:#9ba5c0; --text3:#6070a0;
+  --accent:#4f8ef7; --accent2:#7ab3ff;
+  --gold:#f0b84a; --green:#3ecf8e; --red:#f56565; --red2:#fc8585;
+  --purple:#a78bfa; --teal:#2dd4bf;
+  --day-c:#4f8ef7; --eve-c:#f0b84a; --grad-c:#3ecf8e; --prof-c:#a78bfa;
+  --col-w:98px; --row-h:44px; --label-w:60px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);height:100vh;overflow:hidden;font-size:13px;}
+
+/* ── APP SHELL ── */
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar{width:268px;min-width:268px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sb-header{padding:11px 13px 8px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.sb-title{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;}
+.class-tabs{display:flex;flex-wrap:wrap;gap:3px;padding:7px 9px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.class-tab{font-size:11px;padding:3px 7px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .12s;font-family:inherit;}
+.class-tab:hover{border-color:var(--border2);color:var(--text);}
+.class-tab.active{color:#fff;border-color:transparent;}
+.class-tab[data-type="day"].active{background:var(--day-c);}
+.class-tab[data-type="eve"].active{background:#a37a10;}
+.class-tab[data-type="grad"].active{background:#2a9e6b;}
+.class-tab[data-type="prof"].active{background:#7c5dcc;}
+.course-list{flex:1;overflow-y:auto;padding:5px;}
+.course-list::-webkit-scrollbar{width:3px;}
+.course-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+.course-item{padding:7px 9px;border-radius:7px;margin-bottom:3px;cursor:grab;border:1px solid var(--border);background:var(--surface);transition:all .12s;user-select:none;position:relative;}
+.course-item:hover{border-color:var(--border2);background:var(--surface2);}
+.course-item.dragging{opacity:.4;}
+.course-item.placed{opacity:.38;cursor:not-allowed;}
+.course-name{font-size:12px;font-weight:500;color:var(--text);margin-bottom:3px;line-height:1.3;}
+.course-meta{display:flex;gap:5px;align-items:center;flex-wrap:wrap;}
+.course-teacher{font-size:10px;color:var(--text3);}
+.tag{font-size:10px;padding:1px 5px;border-radius:3px;font-weight:500;}
+.tag-req{background:rgba(79,142,247,.15);color:var(--accent2);}
+.tag-sel{background:rgba(240,184,74,.12);color:var(--gold);}
+.tag-cred{background:rgba(255,255,255,.06);color:var(--text2);font-family:'DM Mono',monospace;}
+.placed-badge{position:absolute;right:6px;top:5px;font-size:9px;color:var(--green);}
+
+.add-course-btn{margin:6px 9px 4px;padding:6px 10px;border-radius:6px;border:1px dashed var(--border2);background:transparent;color:var(--text3);font-size:11px;cursor:pointer;width:calc(100% - 18px);text-align:left;font-family:inherit;transition:all .12s;}
+.add-course-btn:hover{color:var(--accent2);border-color:var(--accent);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.header{padding:11px 18px;border-bottom:1px solid var(--border);background:var(--bg2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.header-title{font-size:14px;font-weight:700;letter-spacing:.04em;}
+.header-sub{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+.status-pill{display:flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border-radius:20px;border:1px solid;}
+.status-pill.ok{color:var(--green);border-color:rgba(62,207,142,.3);background:rgba(62,207,142,.08);}
+.status-pill.warn{color:var(--red2);border-color:rgba(245,101,101,.3);background:rgba(245,101,101,.08);}
+.dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
+
+.toolbar{display:flex;gap:5px;align-items:center;padding:6px 14px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
+.btn{padding:4px 11px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-family:inherit;transition:all .12s;}
+.btn:hover{background:var(--surface2);border-color:var(--accent);color:var(--accent2);}
+.btn.primary{background:rgba(79,142,247,.15);border-color:var(--accent);color:var(--accent2);}
+.btn.danger{background:rgba(245,101,101,.1);border-color:var(--red);color:var(--red2);}
+.spacer{flex:1;}
+.view-toggle{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden;}
+.vt-btn{padding:4px 11px;font-size:11px;cursor:pointer;background:transparent;color:var(--text3);border:none;font-family:inherit;transition:all .12s;}
+.vt-btn.active{background:var(--surface2);color:var(--text);}
+
+.legend{display:flex;gap:11px;padding:0 16px;align-items:center;height:27px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
+.li{display:flex;gap:4px;align-items:center;font-size:10px;color:var(--text3);}
+.ld{width:8px;height:8px;border-radius:2px;}
+
+/* ── CONTENT AREA ── */
+.content-row{flex:1;display:flex;overflow:hidden;}
+
+/* ── GRID (class view) ── */
+.grid-area{flex:1;overflow:auto;padding:13px 16px 16px;}
+.grid-area::-webkit-scrollbar{width:5px;height:5px;}
+.grid-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.grid-section-label{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;padding-left:var(--label-w);}
+.timetable-wrap{display:flex;flex-direction:column;gap:2px;}
+.tt-header-row{display:flex;gap:2px;padding-left:var(--label-w);margin-bottom:2px;}
+.tt-day-hdr{width:var(--col-w);text-align:center;font-size:11px;font-weight:600;color:var(--text2);padding:3px 0;letter-spacing:.04em;}
+.tt-period-row{display:flex;gap:2px;}
+.period-label{width:var(--label-w);min-width:var(--label-w);display:flex;flex-direction:column;align-items:flex-end;justify-content:center;padding-right:7px;}
+.period-label .pnum{font-size:11px;font-weight:600;color:var(--text2);font-family:'DM Mono',monospace;}
+.period-label .ptime{font-size:9px;color:var(--text3);}
+.day-cell{width:var(--col-w);position:relative;}
+.slot-block{position:absolute;left:0;right:0;top:0;border-radius:6px;overflow:hidden;border:1px solid var(--border);background:var(--surface);z-index:1;}
+.slot-block.empty{height:var(--row-h);cursor:pointer;transition:border-color .12s,background .12s;}
+.slot-block.empty:hover,.slot-block.empty.dragover{border-color:var(--accent);background:rgba(79,142,247,.1);}
+.slot-block.conflict{border-color:var(--red)!important;background:rgba(245,101,101,.08)!important;}
+.noon-row{height:9px;}
+.noon-slot{height:9px;background:rgba(255,255,255,.02);border:1px dashed var(--border);border-radius:3px;}
+.course-card{position:absolute;inset:2px;border-radius:4px;padding:4px 7px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;}
+.cc-day{background:rgba(79,142,247,.22);color:#b8d4ff;}
+.cc-eve{background:rgba(240,184,74,.22);color:#ffd98a;}
+.cc-grad{background:rgba(62,207,142,.22);color:#9dffce;}
+.cc-prof{background:rgba(167,139,250,.22);color:#d0bbff;}
+.cc-custom{background:rgba(255,255,255,.1);color:#dde0ee;}
+.cc-name{font-size:11px;font-weight:600;line-height:1.25;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.cc-teacher{font-size:9px;opacity:.75;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.cc-credits{font-size:9px;opacity:.6;font-family:'DM Mono',monospace;margin-top:1px;}
+.cc-remove{position:absolute;top:3px;right:4px;width:14px;height:14px;font-size:11px;line-height:14px;text-align:center;cursor:pointer;opacity:0;transition:opacity .1s;border-radius:3px;background:rgba(0,0,0,.45);}
+.slot-block:hover .cc-remove{opacity:1;}
+
+/* ── TEACHER VIEW ── */
+.teacher-grid-area{flex:1;overflow:auto;padding:13px 16px 16px;}
+.teacher-grid-area::-webkit-scrollbar{width:5px;height:5px;}
+.teacher-grid-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px;}
+.teacher-selector{display:flex;flex-wrap:wrap;gap:4px;padding:8px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-shrink:0;}
+.teacher-chip{font-size:11px;padding:3px 8px;border-radius:5px;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--text2);transition:all .12s;font-family:inherit;}
+.teacher-chip:hover{border-color:var(--border2);color:var(--text);}
+.teacher-chip.active{background:rgba(79,142,247,.18);border-color:var(--accent);color:var(--accent2);}
+.teacher-chip.has-conflict{border-color:var(--red);color:var(--red2);}
+/* Teacher timetable uses same slot/card classes but cols = 6 days (Mon-Sat) */
+.tt-teacher .tt-day-hdr{width:var(--col-w);}
+.tt-teacher .day-cell{width:var(--col-w);}
+
+/* ── TEACHER LOAD PANEL ── */
+.teacher-panel{width:248px;border-left:1px solid var(--border);background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;}
+.teacher-panel-hd{padding:8px 12px;border-bottom:1px solid var(--border);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);}
+.teacher-list{flex:1;overflow-y:auto;padding:4px;}
+.teacher-list::-webkit-scrollbar{width:3px;}
+.teacher-list::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.teacher-row{padding:5px 7px;border-radius:5px;display:flex;align-items:center;gap:7px;border:1px solid transparent;}
+.teacher-row:hover{background:var(--surface);}
+.teacher-avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;}
+.teacher-info{flex:1;min-width:0;}
+.teacher-name-row{font-size:11px;font-weight:500;}
+.teacher-load-txt{font-size:9px;color:var(--text3);font-family:'DM Mono',monospace;}
+.load-bg{height:2px;background:var(--border);border-radius:1px;margin-top:3px;}
+.load-fill{height:2px;border-radius:1px;transition:width .3s;}
+
+/* ── BOTTOM ── */
+.bottom-panel{height:140px;border-top:1px solid var(--border);background:var(--bg2);display:flex;flex-shrink:0;}
+.conflict-panel{flex:1;overflow-y:auto;padding:7px 13px;}
+.conflict-panel::-webkit-scrollbar{width:3px;}
+.conflict-panel::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.conflict-title{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.conflict-item{font-size:11px;color:var(--red2);padding:3px 0;border-bottom:1px solid rgba(245,101,101,.1);display:flex;gap:5px;line-height:1.4;}
+.conflict-item::before{content:'⚠';font-size:10px;flex-shrink:0;margin-top:1px;}
+.no-conflict{font-size:12px;color:var(--green);display:flex;align-items:center;gap:6px;margin-top:14px;}
+.stats-panel{width:186px;border-left:1px solid var(--border);padding:7px 11px;}
+.stat-row{display:flex;justify-content:space-between;padding:3px 0;font-size:11px;border-bottom:1px solid var(--border);}
+.stat-row:last-child{border-bottom:none;}
+.sl{color:var(--text3);}
+.sv{font-weight:600;font-family:'DM Mono',monospace;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:3000;display:flex;align-items:center;justify-content:center;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:20px 22px;width:380px;max-width:96vw;}
+.modal-title{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text);}
+.form-row{margin-bottom:12px;}
+.form-label{font-size:11px;color:var(--text3);margin-bottom:4px;display:block;}
+.form-input,.form-select{width:100%;padding:6px 10px;border-radius:6px;border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border-color .12s;}
+.form-input:focus,.form-select:focus{border-color:var(--accent);}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+
+/* ── TOAST & TIP ── */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%) translateY(50px);background:var(--surface2);border:1px solid var(--border2);border-radius:8px;padding:7px 16px;font-size:12px;color:var(--text);z-index:4000;transition:transform .22s cubic-bezier(.34,1.56,.64,1);pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.tooltip{position:fixed;background:var(--surface2);border:1px solid var(--border2);border-radius:7px;padding:7px 11px;font-size:11px;color:var(--text);pointer-events:none;z-index:2000;display:none;max-width:200px;box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.tooltip.on{display:block;}
+
+/* ── TEACHER TAG-INPUT ── */
+.teacher-tag-input-wrap{
+  border:1px solid var(--border2);border-radius:6px;background:var(--surface);
+  min-height:36px;padding:4px 6px;display:flex;flex-wrap:wrap;gap:4px;
+  cursor:text;transition:border-color .12s;
+}
+.teacher-tag-input-wrap:focus-within{border-color:var(--accent);}
+.teacher-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(79,142,247,.18);color:var(--accent2);
+  font-size:11px;padding:2px 7px 2px 8px;border-radius:4px;
+  white-space:nowrap;
+}
+.teacher-tag .tag-x{
+  cursor:pointer;font-size:12px;opacity:.7;line-height:1;
+  padding:0 1px;transition:opacity .1s;
+}
+.teacher-tag .tag-x:hover{opacity:1;}
+.teacher-search-input{
+  flex:1;min-width:80px;background:transparent;border:none;outline:none;
+  color:var(--text);font-size:12px;font-family:inherit;padding:2px 4px;
+}
+.teacher-dropdown{
+  position:absolute;left:0;right:0;top:calc(100% + 4px);
+  background:var(--bg2);border:1px solid var(--border2);border-radius:8px;
+  z-index:500;overflow:hidden;display:none;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);max-height:200px;overflow-y:auto;
+}
+.teacher-dropdown.open{display:block;}
+.teacher-dropdown::-webkit-scrollbar{width:3px;}
+.teacher-dropdown::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.td-item{
+  padding:7px 12px;font-size:12px;cursor:pointer;
+  display:flex;align-items:center;gap:8px;transition:background .1s;
+}
+.td-item:hover{background:var(--surface2);}
+.td-item.add-new{color:var(--accent2);font-style:italic;}
+.td-item .td-type{font-size:10px;color:var(--text3);margin-left:auto;}
+#teacher-mgr-body tr{border-bottom:1px solid var(--border);transition:background .1s;}
+#teacher-mgr-body tr:last-child{border-bottom:none;}
+#teacher-mgr-body tr:hover{background:var(--surface);}
+#teacher-mgr-body td{padding:6px 12px;font-size:12px;vertical-align:middle;}
+.tmgr-input{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-size:12px;padding:3px 7px;font-family:inherit;outline:none;width:100%;}
+.tmgr-input:focus{border-color:var(--accent);}
+.tmgr-select{background:var(--surface2);border:1px solid var(--border2);border-radius:5px;color:var(--text);font-size:11px;padding:3px 6px;font-family:inherit;outline:none;}
+.tmgr-select:focus{border-color:var(--accent);}
+.icon-btn{background:transparent;border:none;cursor:pointer;font-size:13px;padding:3px 5px;border-radius:4px;color:var(--text3);transition:all .12s;}
+.icon-btn:hover{background:var(--surface2);color:var(--text);}
+.icon-btn.del:hover{color:var(--red2);}
+/* delete btn on course items */
+.course-del-btn{position:absolute;right:6px;bottom:5px;font-size:9px;color:var(--text3);cursor:pointer;padding:1px 5px;border-radius:3px;border:1px solid var(--border);background:transparent;font-family:inherit;transition:all .12s;}
+.course-del-btn:hover{color:var(--red2);border-color:var(--red);}
+</style>
+</head>
+<body>
+<div class="tooltip" id="tip"></div>
+<div class="toast" id="toast"></div>
+
+<div class="app">
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar">
+  <div class="sb-header">
+    <span class="sb-title">待排課程</span>
+    <span id="sb-progress" style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;"></span>
+  </div>
+  <div class="class-tabs" id="class-tabs"></div>
+  <button class="add-course-btn" onclick="openAddModal()">＋ 新增課程（共同/自訂）</button>
+  <div class="course-list" id="course-list"></div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <!-- Header -->
+  <div class="header">
+    <div>
+      <div class="header-title">供應鏈管理系 排課系統</div>
+      <div class="header-sub">115學年度 第1學期 · SCM NKUST</div>
+    </div>
+    <div class="status-pill ok" id="status-pill">
+      <span class="dot"></span><span id="status-txt">就緒</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn primary" onclick="autoArrange()">⚡ 自動排課</button>
+    <button class="btn danger" onclick="clearAll()">✕ 清除全部</button>
+    <button class="btn" onclick="openTeacherMgr()">👤 管理教師</button>
+    <button class="btn" onclick="openClassMgr()">🏫 管理班級</button>
+    <button class="btn" onclick="exportBackup()">↓ 匯出備份</button>
+    <label class="btn" style="cursor:pointer;display:inline-flex;align-items:center;">
+      ↑ 匯入備份
+      <input type="file" accept=".json" onchange="importBackup(event)" style="display:none;">
+    </label>
+    <div class="spacer"></div>
+    <div class="view-toggle">
+      <button class="vt-btn active" id="vt-class"   onclick="setView('class')">班級課表</button>
+      <button class="vt-btn"        id="vt-teacher" onclick="setView('teacher')">教師課表</button>
+      <button class="vt-btn"        id="vt-load"    onclick="setView('load')">教師負載</button>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <span class="li"><span class="ld" style="background:var(--day-c)"></span>日間四技</span>
+    <span class="li"><span class="ld" style="background:var(--eve-c)"></span>進修四技</span>
+    <span class="li"><span class="ld" style="background:var(--grad-c)"></span>碩士班</span>
+    <span class="li"><span class="ld" style="background:var(--prof-c)"></span>碩士在職班</span>
+    <span class="li"><span class="ld" style="background:rgba(245,101,101,.6)"></span>衝堂</span>
+    <span class="li"><span class="ld" style="background:rgba(255,255,255,.2)"></span>共同/自訂</span>
+    <span style="flex:1"></span>
+    <span style="font-size:10px;color:var(--text3);font-style:italic;">拖曳排課 · 學分=節數</span>
+  </div>
+
+  <!-- Content -->
+  <div class="content-row" id="content-row">
+    <!-- Class view -->
+    <div id="view-class" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+      <div class="grid-area" id="grid-area"></div>
+    </div>
+
+    <!-- Teacher view -->
+    <div id="view-teacher" style="flex:1;overflow:hidden;display:flex;flex-direction:column;display:none;">
+      <div class="teacher-selector" id="teacher-selector"></div>
+      <div class="teacher-grid-area" id="teacher-grid-area"></div>
+    </div>
+
+    <!-- Load view: teacher panel only -->
+    <div id="view-load" style="flex:1;overflow:hidden;display:flex;display:none;">
+      <div style="flex:1;overflow-y:auto;padding:14px 20px;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;">全系教師授課負載</div>
+        <div id="load-list" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom -->
+  <div class="bottom-panel">
+    <div class="conflict-panel">
+      <div class="conflict-title">衝堂偵測 <span id="conflict-count" style="color:var(--red2);"></span></div>
+      <div id="conflict-list"></div>
+    </div>
+    <div class="stats-panel">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:6px;">排課進度</div>
+      <div class="stat-row"><span class="sl">已排課程</span><span class="sv" style="color:var(--green)" id="s-placed">0</span></div>
+      <div class="stat-row"><span class="sl">待排課程</span><span class="sv" style="color:var(--gold)" id="s-remain">0</span></div>
+      <div class="stat-row"><span class="sl">衝堂數</span><span class="sv" style="color:var(--red2)" id="s-conf">0</span></div>
+      <div class="stat-row"><span class="sl">完成率</span><span class="sv" style="color:var(--accent2)" id="s-pct">0%</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══ ADD COURSE MODAL ══ -->
+<div class="modal-overlay" id="add-modal" style="display:none" onclick="closeModalOutside(event)">
+  <div class="modal" style="width:420px;position:relative;overflow:visible;">
+    <div class="modal-title">新增課程（共同必修 / 自訂）</div>
+    <div class="form-row">
+      <label class="form-label">班級</label>
+      <select class="form-select" id="m-class"></select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">課程名稱</label>
+      <input class="form-input" id="m-name" placeholder="例：實用英文(一)、體育(一)..." />
+    </div>
+    <div class="form-row-2">
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">學分（節數）</label>
+        <select class="form-select" id="m-credits">
+          <option value="1">1</option><option value="2" selected>2</option>
+          <option value="3">3</option><option value="4">4</option>
+        </select>
+      </div>
+      <div class="form-row" style="margin-bottom:0">
+        <label class="form-label">必/選修</label>
+        <select class="form-select" id="m-type">
+          <option>必修</option><option>選修</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row" style="margin-top:12px;position:relative;">
+      <label class="form-label">任課教師（可搜尋選擇，支援多位）</label>
+      <div class="teacher-tag-input-wrap" id="m-teacher-wrap" onclick="document.getElementById('m-teacher-search').focus()">
+        <!-- tags injected here by JS -->
+        <input class="teacher-search-input" id="m-teacher-search"
+          placeholder="搜尋教師姓名…"
+          autocomplete="off"
+          oninput="onTeacherSearch(this.value)"
+          onkeydown="onTeacherSearchKey(event)"
+          onfocus="showTeacherDropdown()"
+        />
+      </div>
+      <div class="teacher-dropdown" id="m-teacher-dropdown"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeAddModal()">取消</button>
+      <button class="btn primary" onclick="confirmAddCourse()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CLASS MANAGER MODAL ══ -->
+<div class="modal-overlay" id="class-mgr-modal" style="display:none" onclick="if(event.target===this)closeClassMgr()">
+  <div class="modal" style="width:480px;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">班級管理</div>
+      <button class="btn primary" onclick="openAddClass()" style="font-size:11px;padding:4px 10px;">＋ 新增班級</button>
+    </div>
+
+    <!-- Add class form -->
+    <div id="add-class-form" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;">新增班級</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div>
+          <label class="form-label">班級名稱</label>
+          <input class="form-input" id="nc-name" placeholder="例：日供一乙" />
+        </div>
+        <div>
+          <label class="form-label">學制</label>
+          <select class="form-select" id="nc-type">
+            <option value="day">日間四技</option>
+            <option value="eve">進修四技</option>
+            <option value="grad">碩士班</option>
+            <option value="prof">碩士在職班</option>
+          </select>
+        </div>
+        <div>
+          <label class="form-label">年級</label>
+          <select class="form-select" id="nc-grade">
+            <option value="1">1年級</option><option value="2">2年級</option>
+            <option value="3">3年級</option><option value="4">4年級</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button class="btn primary" onclick="confirmAddClass()">新增</button>
+        <button class="btn" onclick="document.getElementById('add-class-form').style.display='none'">取消</button>
+      </div>
+    </div>
+
+    <!-- Class list -->
+    <div style="flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;" id="class-mgr-table">
+        <thead>
+          <tr style="background:var(--surface);border-bottom:1px solid var(--border);">
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">班級名稱</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">學制</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">年級</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">課程/已排</th>
+            <th style="padding:7px 4px;"></th>
+          </tr>
+        </thead>
+        <tbody id="class-mgr-body"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn" onclick="closeClassMgr()">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TEACHER MANAGER MODAL ══ -->
+<div class="modal-overlay" id="teacher-mgr-modal" style="display:none" onclick="closeTMgrOutside(event)">
+  <div class="modal" style="width:460px;max-height:88vh;display:flex;flex-direction:column;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="modal-title" style="margin-bottom:0;">教師名單管理</div>
+      <button class="btn primary" onclick="openAddTeacher()" style="font-size:11px;padding:4px 10px;">＋ 新增教師</button>
+    </div>
+
+    <!-- Add new teacher inline form (hidden by default) -->
+    <div id="add-teacher-form" style="display:none;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:10px;">新增教師</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;">
+        <div>
+          <label class="form-label">姓名</label>
+          <input class="form-input" id="nt-name" placeholder="教師姓名" />
+        </div>
+        <div>
+          <label class="form-label">職別</label>
+          <select class="form-select" id="nt-type">
+            <option value="專任">專任</option>
+            <option value="兼任">兼任</option>
+          </select>
+        </div>
+        <div style="display:flex;gap:6px;padding-bottom:1px;">
+          <button class="btn primary" onclick="confirmAddTeacher()" style="white-space:nowrap;">新增</button>
+          <button class="btn" onclick="document.getElementById('add-teacher-form').style.display='none'">取消</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teacher list -->
+    <div style="flex:1;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+      <table style="width:100%;border-collapse:collapse;" id="teacher-mgr-table">
+        <thead>
+          <tr style="background:var(--surface);border-bottom:1px solid var(--border);">
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">姓名</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">職別</th>
+            <th style="padding:7px 12px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);">授課班級數</th>
+            <th style="padding:7px 4px;"></th>
+          </tr>
+        </thead>
+        <tbody id="teacher-mgr-body"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn" onclick="closeTeacherMgr()">關閉</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  DATA
+// ══════════════════════════════════════════
+const TEACHERS = [
+  {id:'T01',name:'鄭玉惠',type:'專任'},{id:'T02',name:'林義屏',type:'專任'},
+  {id:'T03',name:'徐賢斌',type:'專任'},{id:'T04',name:'李勝祥',type:'專任'},
+  {id:'T05',name:'李穎',  type:'專任'},{id:'T06',name:'黃彥登',type:'專任'},
+  {id:'T07',name:'洪榮耀',type:'專任'},{id:'T08',name:'潘郁仁',type:'專任'},
+  {id:'T09',name:'李怡慧',type:'專任'},{id:'T10',name:'陳祝寧',type:'兼任'},
+  {id:'T11',name:'溫源鳳',type:'兼任'},{id:'T12',name:'蔡至誠',type:'兼任'},
+  {id:'T13',name:'喬懷恩',type:'兼任'},{id:'T14',name:'王翊和',type:'兼任'},
+  {id:'T15',name:'陳榮宏',type:'兼任'},{id:'T16',name:'余德成',type:'兼任'},
+  {id:'T17',name:'余蕙靜',type:'兼任'},{id:'T18',name:'劉孟恩',type:'兼任'},
+  {id:'T19',name:'何亞凡',type:'兼任'},{id:'T20',name:'新聘老師',type:'兼任'},
+  {id:'T21',name:'徐志鈞',type:'兼任'},
+];
+
+const CLASSES = [
+  {id:'C01',name:'日供一甲',type:'day', grade:1},
+  {id:'C02',name:'日供二甲',type:'day', grade:2},
+  {id:'C03',name:'日供三甲',type:'day', grade:3},
+  {id:'C04',name:'日供四甲',type:'day', grade:4},
+  {id:'C05',name:'進供二甲',type:'eve', grade:2},
+  {id:'C06',name:'進供三甲',type:'eve', grade:3},
+  {id:'C07',name:'進供四甲',type:'eve', grade:4},
+  {id:'C08',name:'碩一',    type:'grad',grade:1},
+  {id:'C09',name:'碩專一',  type:'prof',grade:1},
+];
+
+// 更新後課程 (2026.4.9 版本)
+let COURSES = [
+  // ── 日供一甲 ──
+  {id:'CO01',name:'供應鏈概論',    classId:'C01',credits:3,type:'必修',teachers:['T01'],custom:false},
+  {id:'CO02',name:'會計學',        classId:'C01',credits:3,type:'必修',teachers:['T06'],custom:false},
+  {id:'CO03',name:'微積分',        classId:'C01',credits:3,type:'必修',teachers:['T07'],custom:false},
+  {id:'CO04',name:'管理軟體概論',  classId:'C01',credits:3,type:'必修',teachers:['T06','T13'],custom:false}, // 更新: +喬懷恩
+  {id:'CO05',name:'統計學',        classId:'C01',credits:3,type:'必修',teachers:['T05'],custom:false},
+  {id:'CO06',name:'談判與衝突管理',classId:'C01',credits:3,type:'選修',teachers:['T02'],custom:false},
+  // ── 日供二甲 ──
+  {id:'CO07',name:'存貨管理',      classId:'C02',credits:3,type:'必修',teachers:['T20'],custom:false},
+  {id:'CO08',name:'採購管理',      classId:'C02',credits:3,type:'必修',teachers:['T10'],custom:false},
+  {id:'CO09',name:'管理資訊系統',  classId:'C02',credits:3,type:'必修',teachers:['T03'],custom:false},
+  {id:'CO10',name:'行銷管理',      classId:'C02',credits:3,type:'必修',teachers:['T04'],custom:false},
+  {id:'CO11',name:'資料庫管理',    classId:'C02',credits:3,type:'選修',teachers:['T08'],custom:false},
+  {id:'CO12',name:'電子商務',      classId:'C02',credits:3,type:'選修',teachers:['T02'],custom:false},
+  {id:'CO13',name:'流通管理',      classId:'C02',credits:3,type:'選修',teachers:['T04'],custom:false},
+  // ── 日供三甲 ──
+  {id:'CO14',name:'綠色供應鏈',    classId:'C03',credits:3,type:'必修',teachers:['T03'],custom:false},
+  {id:'CO15',name:'水產供應鏈',    classId:'C03',credits:3,type:'必修',teachers:['T11','T12'],custom:false},
+  {id:'CO16',name:'全面品質管理',  classId:'C03',credits:3,type:'必修',teachers:['T01'],custom:false},
+  {id:'CO17',name:'實務專題(一)',  classId:'C03',credits:2,type:'必修',teachers:[],custom:false},
+  {id:'CO18',name:'大數據分析',    classId:'C03',credits:3,type:'選修',teachers:['T08','T13'],custom:false},
+  {id:'CO19',name:'倉儲管理',      classId:'C03',credits:3,type:'選修',teachers:['T05'],custom:false},
+  {id:'CO20',name:'財務報表分析',  classId:'C03',credits:3,type:'選修',teachers:['T07'],custom:false},
+  {id:'CO21',name:'安全管理',      classId:'C03',credits:3,type:'選修',teachers:['T01','T14'],custom:false},
+  // ── 日供四甲 ──
+  {id:'CO22',name:'服務與作業管理',classId:'C04',credits:3,type:'選修',teachers:['T02'],custom:false},
+  {id:'CO23',name:'專案管理',      classId:'C04',credits:3,type:'選修',teachers:['T09'],custom:false},
+  {id:'CO24',name:'緊急運籌',      classId:'C04',credits:3,type:'選修',teachers:['T19'],custom:false},
+  // ── 進供二甲 ──
+  {id:'CO25',name:'存貨管理',      classId:'C05',credits:2,type:'必修',teachers:['T20'],custom:false},
+  {id:'CO26',name:'採購管理',      classId:'C05',credits:2,type:'必修',teachers:['T15'],custom:false},
+  {id:'CO27',name:'管理資訊系統',  classId:'C05',credits:2,type:'必修',teachers:['T03'],custom:false},
+  {id:'CO28',name:'行銷管理',      classId:'C05',credits:2,type:'必修',teachers:['T04'],custom:false},
+  {id:'CO29',name:'流通管理',      classId:'C05',credits:2,type:'必修',teachers:['T04'],custom:false},
+  // ── 進供三甲 ──
+  {id:'CO30',name:'綠色供應鏈',    classId:'C06',credits:2,type:'必修',teachers:['T03'],custom:false},
+  {id:'CO31',name:'水產供應鏈',    classId:'C06',credits:2,type:'必修',teachers:['T11','T12'],custom:false},
+  {id:'CO32',name:'全面品質管理',  classId:'C06',credits:2,type:'必修',teachers:['T01'],custom:false},
+  {id:'CO33',name:'安全管理',      classId:'C06',credits:2,type:'必修',teachers:['T16'],custom:false},
+  {id:'CO34',name:'實務專題(一)',  classId:'C06',credits:2,type:'必修',teachers:['T05','T06'],custom:false},
+  // ── 進供四甲 ──
+  {id:'CO35',name:'就業講座',      classId:'C07',credits:2,type:'必修',teachers:['T06'],custom:false},
+  {id:'CO36',name:'專案管理',      classId:'C07',credits:2,type:'必修',teachers:['T09'],custom:false},
+  {id:'CO37',name:'港埠貨櫃作業', classId:'C07',credits:2,type:'選修',teachers:['T18'],custom:false},
+  {id:'CO38',name:'綠色行銷',      classId:'C07',credits:2,type:'選修',teachers:['T20'],custom:false}, // 新增課程
+  {id:'CO39',name:'緊急運籌',      classId:'C07',credits:2,type:'選修',teachers:['T06'],custom:false},
+  {id:'CO40',name:'水產品銷售',    classId:'C07',credits:2,type:'選修',teachers:['T19'],custom:false},
+  // ── 碩一 ──
+  {id:'CO41',name:'供應鏈管理',    classId:'C08',credits:3,type:'必修',teachers:['T01'],custom:false},
+  {id:'CO42',name:'研究方法',      classId:'C08',credits:3,type:'必修',teachers:['T02','T21'],custom:false},
+  {id:'CO43',name:'資訊流管理專題',classId:'C08',credits:2,type:'選修',teachers:['T03'],custom:false},
+  {id:'CO44',name:'物流管理專題',  classId:'C08',credits:2,type:'選修',teachers:['T05'],custom:false},
+  {id:'CO45',name:'商流管理專題',  classId:'C08',credits:2,type:'選修',teachers:['T04'],custom:false},
+  {id:'CO46',name:'金流管理專題',  classId:'C08',credits:2,type:'選修',teachers:['T07'],custom:false},
+  // ── 碩專一 ──
+  {id:'CO47',name:'供應鏈管理',    classId:'C09',credits:3,type:'必修',teachers:['T01','T09'],custom:false},
+  {id:'CO48',name:'研究方法',      classId:'C09',credits:3,type:'必修',teachers:['T02','T21'],custom:false},
+  {id:'CO49',name:'資訊流管理專題',classId:'C09',credits:2,type:'選修',teachers:['T03'],custom:false},
+  {id:'CO50',name:'物流管理專題',  classId:'C09',credits:2,type:'選修',teachers:['T05'],custom:false},
+  {id:'CO51',name:'商流管理專題',  classId:'C09',credits:2,type:'選修',teachers:['T16'],custom:false},
+  {id:'CO52',name:'金流管理專題',  classId:'C09',credits:2,type:'選修',teachers:['T07'],custom:false},
+];
+
+let customCourseCounter = 100;
+
+// ── Period configs ──
+// Day: 1-9 real + noon divider
+// Eve: A/B/C (= periods 10/12/13 in teacher schedule; 11 = 班會 not used)
+// Teacher timetable: 1-13 with 11=班會-like slot
+
+// 日間部：第1-13節（08:10–22:05），第4/5節間有午休視覺分隔
+const DAY_PERIODS = [
+  {id:1,label:'1',time:'08:10'},{id:2,label:'2',time:'09:10'},
+  {id:3,label:'3',time:'10:10'},{id:4,label:'4',time:'11:10'},
+  {id:5,label:'5',time:'13:30'},{id:6,label:'6',time:'14:30'},
+  {id:7,label:'7',time:'15:30'},{id:8,label:'8',time:'16:30'},
+  {id:9,label:'9',time:'17:30'},
+  {id:'A',label:'A',time:'18:30'},{id:'B',label:'B',time:'19:25'},
+  {id:'C',label:'C',time:'20:20'},{id:'D',label:'D',time:'21:15'},
+];
+const DAY_REAL=[1,2,3,4,5,6,7,8,9,'A','B','C','D'];
+const DAY_MORNING=[1,2,3,4], DAY_AFTERNOON=[5,6,7,8,9,'A','B','C','D'];
+
+const EVE_PERIODS=[
+  {id:'A',label:'A',time:'18:30'},{id:'B',label:'B',time:'19:25'},
+  {id:'C',label:'C',time:'20:20'},{id:'D',label:'D',time:'21:15'},
+];
+const EVE_REAL=['A','B','C','D'];
+
+// 碩士班/碩專班：第1-13節（08:10–22:05），無午休分隔列，含週六
+const GRAD_PERIODS=[
+  {id:1,label:'1',time:'08:10'},{id:2,label:'2',time:'09:10'},
+  {id:3,label:'3',time:'10:10'},{id:4,label:'4',time:'11:10'},
+  {id:5,label:'5',time:'13:30'},{id:6,label:'6',time:'14:30'},
+  {id:7,label:'7',time:'15:30'},{id:8,label:'8',time:'16:30'},
+  {id:9,label:'9',time:'17:30'},
+  {id:'A',label:'A',time:'18:30'},{id:'B',label:'B',time:'19:25'},
+  {id:'C',label:'C',time:'20:20'},{id:'D',label:'D',time:'21:15'},
+];
+const GRAD_REAL=[1,2,3,4,5,6,7,8,9,'A','B','C','D'];
+// 午休在第4節和第5節之間，跨組不可排
+const GRAD_MORNING=[1,2,3,4], GRAD_AFTERNOON=[5,6,7,8,9,'A','B','C','D'];
+
+// Teacher timetable: Mon-Sat, periods 1-13
+// Period mapping: 1-9=day, A=10, B=12, C=13; period 11 = 班會(skip)
+const TEACHER_PERIODS=[
+  {id:1,label:'1',time:'08:10'},{id:2,label:'2',time:'09:10'},
+  {id:3,label:'3',time:'10:10'},{id:4,label:'4',time:'11:10'},
+  {id:'noon',label:'午休',time:''},
+  {id:5,label:'5',time:'13:30'},{id:6,label:'6',time:'14:30'},
+  {id:7,label:'7',time:'15:30'},{id:8,label:'8',time:'16:30'},
+  {id:9,label:'9',time:'17:30'},
+  {id:'A',label:'A',time:'18:30'},
+  {id:'B',label:'B',time:'19:25'},
+  {id:'C',label:'C',time:'20:20'},
+  {id:'D',label:'D',time:'21:15'},
+];
+const TEACHER_REAL=[1,2,3,4,5,6,7,8,9,'A','B','C','D'];
+const ALL_DAYS=[1,2,3,4,5];        // 日間部：週一–週五
+const ALL_DAYS_SAT=[1,2,3,4,5,6]; // 進修/碩班：週一–週六
+const DAY_LABELS={1:'週一',2:'週二',3:'週三',4:'週四',5:'週五',6:'週六'};
+// 日間部只排週一–五；進修部、碩班含週六
+function getClassDays(cls){
+  if(cls.type==='day'||cls.type==='grad') return ALL_DAYS;  // 日間部、碩一：週一–週五
+  return ALL_DAYS_SAT;                                      // 進修部、碩專一：週一–週六
+}
+
+// ══════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════
+let schedule = {}; // classId → [{courseId, day, slots:[periodId,...]}]
+CLASSES.forEach(c => { schedule[c.id] = []; });
+
+let selectedClassId = 'C01';
+let selectedTeacherId = 'T01';
+let currentView = 'class';
+let dragCourseId = null;
+let conflicts = [];
+
+// ── Lookup maps ──
+const tmap = Object.fromEntries(TEACHERS.map(t=>[t.id,t]));
+const cmap = Object.fromEntries(CLASSES.map(c=>[c.id,c]));
+const comap = () => Object.fromEntries(COURSES.map(c=>[c.id,c]));
+
+function getTName(tid){ return tmap[tid]?.name||tid; }
+function getClassCc(type){ return {day:'cc-day',eve:'cc-eve',grad:'cc-grad',prof:'cc-prof'}[type]||'cc-custom'; }
+
+// ── Period helpers ──
+function getPeriodsConfig(cls){
+  if(cls.type==='day')  return DAY_PERIODS;
+  if(cls.type==='eve')  return EVE_PERIODS;
+  if(cls.type==='grad') return DAY_PERIODS;   // 碩一：第1-9節（含午休分隔），週一–週五
+  return GRAD_PERIODS;                        // 碩專一：第1-13節，週一–週六
+}
+function getRealPeriods(cls){
+  if(cls.type==='day')  return DAY_REAL;
+  if(cls.type==='eve')  return EVE_REAL;
+  if(cls.type==='grad') return DAY_REAL;      // 碩一：1-9
+  return GRAD_REAL;                           // 碩專一：1-13
+}
+
+function getSpan(cls, startP, n){
+  if(cls.type==='day'||cls.type==='grad'){
+    // 日間部、碩一：第1-9節，跨午休限制
+    const inM = DAY_MORNING.includes(startP);
+    const grp = inM ? DAY_MORNING : DAY_AFTERNOON;
+    const i = grp.indexOf(startP);
+    if(i<0) return null;
+    if(i+n>grp.length) return null;
+    return grp.slice(i,i+n);
+  }
+  if(cls.type==='prof'){
+    // 碩專一：第1-13節，跨午休限制
+    const inM = GRAD_MORNING.includes(startP);
+    const grp = inM ? GRAD_MORNING : GRAD_AFTERNOON;
+    const i = grp.indexOf(startP);
+    if(i<0) return null;
+    if(i+n>grp.length) return null;
+    return grp.slice(i,i+n);
+  }
+  // 進修部 Eve：A-D 連續，無午休限制
+  const real = getRealPeriods(cls);
+  const i = real.indexOf(startP);
+  if(i<0||i+n>real.length) return null;
+  return real.slice(i,i+n);
+}
+
+// Same span logic for teacher view (uses teacher periods)
+function getTeacherSpan(startP, n){
+  // Teacher periods don't have noon block division for scheduling span
+  const i = TEACHER_REAL.indexOf(startP);
+  if(i<0) return null;
+  // Prevent crossing noon: 1-4 group and 5-D group
+  const morningT=[1,2,3,4], pmT=[5,6,7,8,9,'A','B','C','D'];
+  const inM=morningT.includes(startP);
+  const grp=inM?morningT:pmT;
+  const gi=grp.indexOf(startP);
+  if(gi+n>grp.length) return null;
+  return grp.slice(gi,gi+n);
+}
+
+// ── Schedule queries ──
+function isPlaced(courseId){
+  const cm=comap(); const co=cm[courseId]; if(!co) return false;
+  return schedule[co.classId].some(e=>e.courseId===courseId);
+}
+function getEntry(courseId){
+  const cm=comap(); const co=cm[courseId]; if(!co) return null;
+  return schedule[co.classId].find(e=>e.courseId===courseId)||null;
+}
+function isSpanFree(classId,day,span){
+  for(const e of schedule[classId]){
+    if(e.day!==day) continue;
+    for(const s of span) if(e.slots.includes(s)) return false;
+  }
+  return true;
+}
+
+// Teacher busy check: is teacher tid busy on day d at period p?
+function isTeacherBusy(tid, day, period){
+  const cm=comap();
+  for(const cls of CLASSES){
+    for(const e of schedule[cls.id]){
+      if(e.day!==day) continue;
+      if(!e.slots.includes(period)) continue;
+      const co=cm[e.courseId];
+      if(co?.teachers.includes(tid)) return e;
+    }
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════
+//  PLACE / REMOVE
+// ══════════════════════════════════════════
+function placeCourse(courseId, classId, day, startP){
+  const cm=comap(); const co=cm[courseId];
+  if(!co||co.classId!==classId){ showToast('⚠ 課程班級不符'); return false; }
+  if(isPlaced(courseId)){ showToast('⚠ 課程已排入'); return false; }
+  const cls=cmap[classId];
+  const span=getSpan(cls,startP,co.credits);
+  if(!span){ showToast(`⚠ 此格無法容納 ${co.credits} 節連排（超出範圍或跨越午休）`); return false; }
+  if(!isSpanFree(classId,day,span)){ showToast('⚠ 該時段已有課程'); return false; }
+  schedule[classId].push({courseId,day,slots:span});
+  render();
+  return true;
+}
+
+function removeCourse(courseId){
+  const cm=comap(); const co=cm[courseId]; if(!co) return;
+  schedule[co.classId]=schedule[co.classId].filter(e=>e.courseId!==courseId);
+  render(); showToast('已移除課程');
+}
+
+// ══════════════════════════════════════════
+//  CONFLICT DETECTION
+// ══════════════════════════════════════════
+function detectConflicts(){
+  conflicts=[];
+  const cm=comap();
+  const tslots={}; // tid → [{classId,day,period,courseId}]
+  for(const cls of CLASSES){
+    for(const e of schedule[cls.id]){
+      const co=cm[e.courseId]; if(!co) continue;
+      for(const tid of co.teachers){
+        if(!tslots[tid]) tslots[tid]=[];
+        for(const p of e.slots) tslots[tid].push({classId:cls.id,day:e.day,period:p,courseId:e.courseId});
+      }
+    }
+  }
+  for(const [tid,slots] of Object.entries(tslots)){
+    const seen={};
+    for(const s of slots){
+      const k=`${s.day}_${s.period}`;
+      if(seen[k]&&seen[k].courseId!==s.courseId){
+        const a=cm[s.courseId], b=cm[seen[k].courseId];
+        const msg=`${getTName(tid)}：${cmap[s.classId]?.name}「${a?.name}」 vs ${cmap[seen[k].classId]?.name}「${b?.name}」週${s.day} 第${s.period}節`;
+        if(!conflicts.find(c=>c.msg===msg))
+          conflicts.push({type:'teacher',msg,tid,affected:[{classId:s.classId,courseId:s.courseId},{classId:seen[k].classId,courseId:seen[k].courseId}]});
+      } else if(!seen[k]) seen[k]=s;
+    }
+  }
+  updateConflictUI(); return conflicts;
+}
+
+function getConflictCourseKeys(){
+  const s=new Set();
+  for(const c of conflicts) for(const a of c.affected) s.add(`${a.classId}__${a.courseId}`);
+  return s;
+}
+
+// ══════════════════════════════════════════
+//  RENDER HELPERS
+// ══════════════════════════════════════════
+const ROW_H=44, GAP=2, NOON_H=9;
+
+function buildTimetable(periods, days, dayLabels, classId_or_null, teacherId_or_null){
+  // Returns a DOM fragment
+  // classId_or_null: if set, renders class schedule
+  // teacherId_or_null: if set, renders teacher schedule (read-only, no drag)
+  const cm=comap();
+  const conflictKeys=getConflictCourseKeys();
+  const isTeacherView=!!teacherId_or_null;
+  const wrap=document.createElement('div');
+  wrap.className='timetable-wrap';
+
+  // Header
+  const hdr=document.createElement('div');
+  hdr.className='tt-header-row'+(isTeacherView?' tt-teacher':'');
+  for(const d of days){
+    const dh=document.createElement('div');
+    dh.className='tt-day-hdr';
+    dh.textContent=dayLabels[d]||`週${d}`;
+    if(d===6) dh.style.cssText='color:var(--purple);font-weight:700;';
+    hdr.appendChild(dh);
+  }
+  wrap.appendChild(hdr);
+
+  // Build lookup: {day:{periodId: entry}}
+  let slotMap={};
+  if(classId_or_null){
+    for(const e of schedule[classId_or_null]){
+      if(!slotMap[e.day]) slotMap[e.day]={};
+      for(const p of e.slots) slotMap[e.day][p]=e;
+    }
+  } else if(teacherId_or_null){
+    // Collect all entries where this teacher appears
+    for(const cls of CLASSES){
+      for(const e of schedule[cls.id]){
+        const co=cm[e.courseId]; if(!co) continue;
+        if(!co.teachers.includes(teacherId_or_null)) continue;
+        if(!slotMap[e.day]) slotMap[e.day]={};
+        for(const p of e.slots){
+          slotMap[e.day][p]={...e, classId:cls.id};
+        }
+      }
+    }
+  }
+
+  const rendered=new Set();
+  // day/grad 和 prof 的 PERIODS 都沒有 noon 列，需手動插入視覺午休分隔
+  const isGradClass = classId_or_null && ['day','grad','prof'].includes(cmap[classId_or_null]?.type);
+
+  for(const period of periods){
+    // Insert noon gap row before period 5 for grad/prof (no noon period in GRAD_PERIODS)
+    if(isGradClass && period.id===5){
+      const noonRow=document.createElement('div');
+      noonRow.className='tt-period-row noon-row';
+      const npl=document.createElement('div'); npl.className='period-label';
+      npl.innerHTML=`<span style="font-size:9px;color:var(--text3)">午休</span>`;
+      noonRow.appendChild(npl);
+      for(const d of days){
+        const nc=document.createElement('div'); nc.className='day-cell'; nc.style.height=`${NOON_H}px`;
+        const ns=document.createElement('div'); ns.className='noon-slot';
+        nc.appendChild(ns); noonRow.appendChild(nc);
+      }
+      wrap.appendChild(noonRow);
+    }
+
+    const isNoon=period.id==='noon';
+    const row=document.createElement('div');
+    row.className='tt-period-row'+(isNoon?' noon-row':'');
+
+    const pl=document.createElement('div');
+    pl.className='period-label';
+    if(isNoon) pl.innerHTML=`<span style="font-size:9px;color:var(--text3)">午休</span>`;
+    else pl.innerHTML=`<span class="pnum">${period.label}</span><span class="ptime">${period.time}</span>`;
+    row.appendChild(pl);
+
+    for(const day of days){
+      const cell=document.createElement('div');
+      cell.className='day-cell';
+      cell.style.height=isNoon?`${NOON_H}px`:`${ROW_H}px`;
+
+      if(isNoon){
+        const ns=document.createElement('div'); ns.className='noon-slot';
+        cell.appendChild(ns); row.appendChild(cell); continue;
+      }
+
+      const entry=slotMap[day]?.[period.id];
+      const rKey=entry?`${day}_${entry.courseId}`:null;
+
+      if(entry&&!rendered.has(rKey)){
+        rendered.add(rKey);
+        const co=cm[entry.courseId];
+        const isConflict=conflictKeys.has(`${entry.classId||classId_or_null}__${entry.courseId}`);
+        const n=entry.slots.length;
+
+        // Span height
+        let spanH=n*ROW_H+(n-1)*GAP;
+        // day/grad/prof 格局都沒有 noon row，跨越午休（第4→第5節）需加高
+        const clsTypForNoon=classId_or_null?cmap[classId_or_null]?.type:null;
+        if(clsTypForNoon&&clsTypForNoon!=='eve'){
+          const crossNoon=entry.slots.some(s=>DAY_MORNING.includes(s))&&
+                          entry.slots.some(s=>DAY_AFTERNOON.includes(s));
+          if(crossNoon) spanH+=NOON_H+GAP;
+        }
+        // Teacher view noon crossing
+        if(isTeacherView){
+          const morningT=[1,2,3,4];
+          const crossNoon=entry.slots.some(s=>morningT.includes(s))&&
+                          entry.slots.some(s=>!morningT.includes(s));
+          if(crossNoon) spanH+=NOON_H+GAP;
+        }
+
+        const block=document.createElement('div');
+        block.className='slot-block'+(isConflict?' conflict':'');
+        block.style.height=`${spanH}px`;
+
+        const clsType=(entry.classId?cmap[entry.classId]?.type:null)||(classId_or_null?cmap[classId_or_null]?.type:null)||'day';
+        const card=document.createElement('div');
+        card.className=`course-card ${co?.custom?'cc-custom':getClassCc(clsType)}`;
+        const teachers=(co?.teachers||[]).slice(0,2).map(getTName).join('/');
+        // In teacher view, show class name instead
+        const subtitle=isTeacherView?(cmap[entry.classId]?.name||''):(teachers);
+        card.innerHTML=`
+          <div class="cc-name">${co?.name||''}</div>
+          <div class="cc-teacher">${subtitle}</div>
+          <div class="cc-credits">${co?.credits}節${co?.type?'·'+co.type:''}</div>
+          ${!isTeacherView?`<div class="cc-remove" onclick="removeCourse('${entry.courseId}')">×</div>`:''}
+        `;
+        block.addEventListener('mouseenter',e=>showTooltip(e,co,entry,isTeacherView));
+        block.addEventListener('mouseleave',hideTooltip);
+        block.appendChild(card);
+        cell.appendChild(block);
+      } else if(!entry){
+        if(!isTeacherView){
+          // Droppable
+          const block=document.createElement('div');
+          block.className='slot-block empty';
+          block.style.height=`${ROW_H}px`;
+          if(day===6) block.style.background='rgba(167,139,250,.06)';
+          block.dataset.day=day; block.dataset.period=period.id;
+          block.addEventListener('dragover',e=>{
+            e.preventDefault();
+            if(dragCourseId){
+              const co=cm[dragCourseId];
+              const cls=cmap[classId_or_null];
+              const span=getSpan(cls,period.id,co?.credits||1);
+              if(span) block.classList.add('dragover');
+            }
+          });
+          block.addEventListener('dragleave',()=>block.classList.remove('dragover'));
+          block.addEventListener('drop',e=>{
+            e.preventDefault(); block.classList.remove('dragover');
+            if(dragCourseId){
+              const ok=placeCourse(dragCourseId,classId_or_null,day,period.id);
+              if(ok) showToast(conflicts.length===0?'✓ 排課成功，無衝堂':`⚠ 已排入，但有 ${conflicts.length} 筆衝堂`);
+            }
+          });
+          cell.appendChild(block);
+        } else {
+          // Teacher view: empty read-only
+          const block=document.createElement('div');
+          block.className='slot-block empty';
+          block.style.height=`${ROW_H}px`;
+          block.style.cursor='default';
+          block.style.pointerEvents='none';
+          if(day===6) block.style.background='rgba(167,139,250,.06)';
+          cell.appendChild(block);
+        }
+      }
+      row.appendChild(cell);
+    }
+    wrap.appendChild(row);
+  }
+  return wrap;
+}
+
+// ══════════════════════════════════════════
+//  RENDER VIEWS
+// ══════════════════════════════════════════
+function renderClassTabs(){
+  const el=document.getElementById('class-tabs'); el.innerHTML='';
+  for(const cls of CLASSES){
+    const btn=document.createElement('button');
+    btn.className=`class-tab${cls.id===selectedClassId?' active':''}`;
+    btn.dataset.type=cls.type; btn.textContent=cls.name;
+    btn.onclick=()=>{ selectedClassId=cls.id; render(); };
+    el.appendChild(btn);
+  }
+}
+
+function renderCourseList(){
+  const el=document.getElementById('course-list'); el.innerHTML='';
+  const courses=COURSES.filter(c=>c.classId===selectedClassId);
+  for(const co of courses){
+    const placed=isPlaced(co.id);
+    const div=document.createElement('div');
+    div.className=`course-item${placed?' placed':''}`;
+    div.draggable=!placed; div.dataset.courseId=co.id;
+    const teachers=co.teachers.map(getTName).join('、')||'未指定';
+    div.innerHTML=`
+      <div class="course-name">${co.name}${co.custom?'<span style="font-size:9px;color:var(--text3);margin-left:4px;">自訂</span>':''}</div>
+      <div class="course-meta">
+        <span class="tag ${co.type==='必修'?'tag-req':'tag-sel'}">${co.type}</span>
+        <span class="tag tag-cred">${co.credits}節</span>
+        <span class="course-teacher">${teachers}</span>
+      </div>
+      ${placed?'<span class="placed-badge">✓</span>':''}
+    `;
+    if(!placed){
+      div.addEventListener('dragstart',e=>{ dragCourseId=co.id; div.classList.add('dragging'); e.dataTransfer.setData('text/plain',co.id); });
+      div.addEventListener('dragend',()=>{ dragCourseId=null; div.classList.remove('dragging'); document.querySelectorAll('.slot-block.dragover').forEach(s=>s.classList.remove('dragover')); });
+    }
+    // 所有課程（包含預設）都可刪除
+    const delBtn=document.createElement('button');
+    delBtn.className='course-del-btn';
+    delBtn.textContent='刪除';
+    delBtn.title='從課程列表移除（不影響其他班）';
+    delBtn.onclick=(e)=>{ e.stopPropagation(); deleteCourse(co.id); };
+    div.appendChild(delBtn);
+    el.appendChild(div);
+  }
+  const total=courses.length, placed=courses.filter(c=>isPlaced(c.id)).length;
+  document.getElementById('sb-progress').textContent=`${placed}/${total}`;
+}
+
+function renderClassGrid(){
+  const cls=cmap[selectedClassId];
+  const container=document.getElementById('grid-area'); container.innerHTML='';
+  const days=getClassDays(cls);
+  const hasSat=days.includes(6);
+  const sectionLabel={
+    day: '日間部（第1–13節，週一–週五）',
+    eve: '進修部（第A–D節，週一–週六）',
+    grad:'碩士班（第1–9節，週一–週五）',
+    prof:'碩士在職班（第1–13節，週一–週六）',
+  }[cls.type]||'';
+  const lbl=document.createElement('div'); lbl.className='grid-section-label'; lbl.textContent=sectionLabel;
+  container.appendChild(lbl);
+  const tt=buildTimetable(getPeriodsConfig(cls), days, DAY_LABELS, cls.id, null);
+  container.appendChild(tt);
+}
+
+function renderTeacherGrid(){
+  const sel=document.getElementById('teacher-selector');
+  // Always rebuild selector so teacher name/type edits are reflected
+  sel.innerHTML='';
+  for(const t of TEACHERS){
+    const btn=document.createElement('button');
+    btn.className=`teacher-chip${t.id===selectedTeacherId?' active':''}`;
+    btn.id=`tchip-${t.id}`; btn.dataset.tid=t.id;
+    btn.textContent=t.name+`(${t.type==='專任'?'專':'兼'})`;
+    btn.onclick=()=>{ selectedTeacherId=t.id; renderTeacherGrid(); };
+    sel.appendChild(btn);
+  }
+  // Update active + conflict status
+  const conflictTids=new Set(conflicts.map(c=>c.tid));
+  for(const chip of sel.querySelectorAll('.teacher-chip')){
+    const tid=chip.dataset.tid;
+    chip.className=`teacher-chip${tid===selectedTeacherId?' active':''}${conflictTids.has(tid)?' has-conflict':''}`;
+  }
+
+  const container=document.getElementById('teacher-grid-area'); container.innerHTML='';
+  const t=tmap[selectedTeacherId];
+  // Header: teacher name + load
+  const lbl=document.createElement('div'); lbl.className='grid-section-label';
+  lbl.style.paddingLeft='0';
+  // Count load
+  const cm=comap(); let totalSlots=0;
+  for(const cls of CLASSES) for(const e of schedule[cls.id]){
+    const co=cm[e.courseId]; if(co?.teachers.includes(selectedTeacherId)) totalSlots+=e.slots.length;
+  }
+  lbl.textContent=`${t?.name} ${t?.type}教師 ─ 本學期已排 ${totalSlots} 節`;
+  container.appendChild(lbl);
+  const tt=buildTimetable(TEACHER_PERIODS, ALL_DAYS_SAT, DAY_LABELS, null, selectedTeacherId);
+  container.appendChild(tt);
+}
+
+function renderLoadView(){
+  const cm=comap();
+  const list=document.getElementById('load-list'); list.innerHTML='';
+  const conflictTids=new Set(conflicts.map(c=>c.tid));
+  const loadMap={};
+  TEACHERS.forEach(t=>loadMap[t.id]=0);
+  for(const cls of CLASSES) for(const e of schedule[cls.id]){
+    const co=cm[e.courseId]; if(!co) continue;
+    for(const tid of co.teachers) loadMap[tid]=(loadMap[tid]||0)+e.slots.length;
+  }
+  const maxLoad=Math.max(...Object.values(loadMap),1);
+
+  const renderGroup=(teachers,label)=>{
+    const g=document.createElement('div');
+    g.style.cssText='font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);padding:4px 0 6px;grid-column:1/-1;';
+    g.textContent=label; list.appendChild(g);
+    for(const t of teachers){
+      const load=loadMap[t.id]||0;
+      const hasC=conflictTids.has(t.id);
+      const color=hasC?'#f56565':(t.type==='專任'?'#4f8ef7':'#f0b84a');
+      const card=document.createElement('div');
+      card.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:9px 11px;cursor:pointer;';
+      if(hasC) card.style.borderColor='rgba(245,101,101,.5)';
+      card.innerHTML=`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+          <div style="width:28px;height:28px;border-radius:50%;background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;">${t.name.slice(0,2)}</div>
+          <div>
+            <div style="font-size:12px;font-weight:500;">${t.name}</div>
+            <div style="font-size:9px;color:var(--text3);">${t.type} · ${load}節</div>
+          </div>
+          ${hasC?`<div style="margin-left:auto;font-size:9px;color:var(--red2);">⚠ 衝堂</div>`:''}
+        </div>
+        <div style="height:3px;background:var(--border);border-radius:2px;">
+          <div style="height:3px;width:${Math.round(load/maxLoad*100)}%;background:${hasC?'#f56565':color};border-radius:2px;transition:width .3s;"></div>
+        </div>
+      `;
+      card.onclick=()=>{ selectedTeacherId=t.id; setView('teacher'); };
+      list.appendChild(card);
+    }
+  };
+  renderGroup(TEACHERS.filter(t=>t.type==='專任'),'專任教師');
+  renderGroup(TEACHERS.filter(t=>t.type==='兼任'),'兼任教師');
+}
+
+function updateConflictUI(){
+  const list=document.getElementById('conflict-list'); list.innerHTML='';
+  if(conflicts.length===0){
+    list.innerHTML='<div class="no-conflict">✓ 目前無衝堂</div>';
+    document.getElementById('conflict-count').textContent='';
+    document.getElementById('status-pill').className='status-pill ok';
+    document.getElementById('status-txt').textContent='無衝堂';
+  } else {
+    document.getElementById('conflict-count').textContent=`${conflicts.length}筆`;
+    document.getElementById('status-pill').className='status-pill warn';
+    document.getElementById('status-txt').textContent=`${conflicts.length}衝堂`;
+    for(const c of conflicts){
+      const item=document.createElement('div'); item.className='conflict-item'; item.textContent=c.msg; list.appendChild(item);
+    }
+  }
+  const total=COURSES.length, placed=COURSES.filter(c=>isPlaced(c.id)).length;
+  document.getElementById('s-placed').textContent=placed;
+  document.getElementById('s-remain').textContent=total-placed;
+  document.getElementById('s-conf').textContent=conflicts.length;
+  document.getElementById('s-pct').textContent=Math.round(placed/total*100)+'%';
+}
+
+function render(){
+  renderClassTabs();
+  renderCourseList();
+  detectConflicts();
+  if(currentView==='class') renderClassGrid();
+  else if(currentView==='teacher') renderTeacherGrid();
+  else renderLoadView();
+}
+
+// ══════════════════════════════════════════
+//  VIEW SWITCHING
+// ══════════════════════════════════════════
+function setView(v){
+  currentView=v;
+  document.getElementById('view-class').style.display=v==='class'?'flex':'none';
+  document.getElementById('view-teacher').style.display=v==='teacher'?'flex':'none';
+  document.getElementById('view-load').style.display=v==='load'?'flex':'none';
+  ['class','teacher','load'].forEach(n=>{
+    document.getElementById(`vt-${n}`).className=`vt-btn${v===n?' active':''}`;
+  });
+  render();
+}
+
+// ══════════════════════════════════════════
+//  ADD CUSTOM COURSE
+// ══════════════════════════════════════════
+// ── Teacher tag-input state ──
+let selectedTeacherTags = []; // [{id, name}]
+
+function openAddModal(){
+  const sel=document.getElementById('m-class'); sel.innerHTML='';
+  for(const cls of CLASSES){
+    const opt=document.createElement('option');
+    opt.value=cls.id; opt.textContent=cls.name;
+    if(cls.id===selectedClassId) opt.selected=true;
+    sel.appendChild(opt);
+  }
+  document.getElementById('m-name').value='';
+  document.getElementById('m-teacher-search').value='';
+  selectedTeacherTags=[];
+  renderTeacherTags();
+  closeTeacherDropdown();
+  document.getElementById('add-modal').style.display='flex';
+  setTimeout(()=>document.getElementById('m-name').focus(),50);
+}
+function closeAddModal(){
+  document.getElementById('add-modal').style.display='none';
+  closeTeacherDropdown();
+}
+function closeModalOutside(e){ if(e.target===document.getElementById('add-modal')) closeAddModal(); }
+
+// Render tags inside the wrap
+function renderTeacherTags(){
+  const wrap=document.getElementById('m-teacher-wrap');
+  // Remove old tags (keep the search input)
+  wrap.querySelectorAll('.teacher-tag').forEach(t=>t.remove());
+  const search=document.getElementById('m-teacher-search');
+  for(const tag of selectedTeacherTags){
+    const span=document.createElement('span');
+    span.className='teacher-tag';
+    span.innerHTML=`${tag.name}<span class="tag-x" onclick="removeTeacherTag('${tag.id}')">×</span>`;
+    wrap.insertBefore(span,search);
+  }
+  search.placeholder=selectedTeacherTags.length===0?'搜尋教師姓名…':'再搜尋新增…';
+}
+
+function removeTeacherTag(tid){
+  selectedTeacherTags=selectedTeacherTags.filter(t=>t.id!==tid);
+  renderTeacherTags();
+}
+
+function addTeacherTag(teacher){
+  if(selectedTeacherTags.find(t=>t.id===teacher.id)){
+    showToast('此教師已在列表中'); return;
+  }
+  selectedTeacherTags.push({id:teacher.id,name:teacher.name});
+  renderTeacherTags();
+  document.getElementById('m-teacher-search').value='';
+  closeTeacherDropdown();
+  document.getElementById('m-teacher-search').focus();
+}
+
+function addNewTeacherTag(name){
+  name=name.trim(); if(!name) return;
+  // Check if already in system
+  let t=TEACHERS.find(t=>t.name===name);
+  if(!t){
+    const newId=`TX${customCourseCounter++}`;
+    t={id:newId,name,type:'兼任'};
+    TEACHERS.push(t); tmap[newId]=t;
+    showToast(`✓ 已新增教師「${name}」（兼任）`);
+  }
+  addTeacherTag(t);
+}
+
+function onTeacherSearch(query){
+  query=query.trim();
+  const dd=document.getElementById('m-teacher-dropdown');
+  const existing=selectedTeacherTags.map(t=>t.id);
+  const matched=TEACHERS.filter(t=>t.name.includes(query)&&!existing.includes(t.id));
+
+  dd.innerHTML='';
+  if(matched.length===0&&query===''){
+    // Show all when empty
+    const all=TEACHERS.filter(t=>!existing.includes(t.id));
+    all.slice(0,12).forEach(t=>{
+      const item=document.createElement('div'); item.className='td-item';
+      item.innerHTML=`<span>${t.name}</span><span class="td-type">${t.type}</span>`;
+      item.onclick=()=>addTeacherTag(t);
+      dd.appendChild(item);
+    });
+  } else {
+    matched.slice(0,8).forEach(t=>{
+      const item=document.createElement('div'); item.className='td-item';
+      // Highlight matched part
+      const hl=t.name.replace(new RegExp(`(${query})`,'g'),'<strong>$1</strong>');
+      item.innerHTML=`<span>${hl}</span><span class="td-type">${t.type}</span>`;
+      item.onclick=()=>addTeacherTag(t);
+      dd.appendChild(item);
+    });
+    if(query&&!TEACHERS.find(t=>t.name===query)){
+      const item=document.createElement('div'); item.className='td-item add-new';
+      item.innerHTML=`＋ 新增「${query}」為兼任教師`;
+      item.onclick=()=>addNewTeacherTag(query);
+      dd.appendChild(item);
+    }
+  }
+  dd.classList.toggle('open', dd.children.length>0);
+}
+
+function showTeacherDropdown(){
+  onTeacherSearch(document.getElementById('m-teacher-search').value);
+}
+
+function closeTeacherDropdown(){
+  document.getElementById('m-teacher-dropdown')?.classList.remove('open');
+}
+
+function onTeacherSearchKey(e){
+  if(e.key==='Enter'){
+    e.preventDefault();
+    const dd=document.getElementById('m-teacher-dropdown');
+    const first=dd.querySelector('.td-item');
+    if(first) first.click();
+  }
+  if(e.key==='Escape') closeTeacherDropdown();
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', e=>{
+  if(!document.getElementById('add-modal')?.contains(e.target)) closeTeacherDropdown();
+  if(!e.target.closest('#m-teacher-wrap')&&!e.target.closest('#m-teacher-dropdown')) closeTeacherDropdown();
+});
+
+function confirmAddCourse(){
+  const name=document.getElementById('m-name').value.trim();
+  if(!name){ showToast('⚠ 請輸入課程名稱'); return; }
+  const classId=document.getElementById('m-class').value;
+  const credits=parseInt(document.getElementById('m-credits').value);
+  const type=document.getElementById('m-type').value;
+
+  // Also accept anything still typed in search box
+  const typed=document.getElementById('m-teacher-search').value.trim();
+  if(typed) addNewTeacherTag(typed);
+
+  const teacherIds=selectedTeacherTags.map(t=>t.id);
+
+  const newId=`CX${customCourseCounter++}`;
+  COURSES.push({id:newId,name,classId,credits,type,teachers:teacherIds,custom:true});
+  closeAddModal();
+  selectedClassId=classId;
+  render();
+  showToast(`✓ 已新增「${name}」至${cmap[classId]?.name}`);
+}
+
+// 統一刪除函式：所有課程（含預設）都可刪
+function deleteCourse(courseId){
+  const cm=comap(); const co=cm[courseId];
+  if(!co) return;
+  const msg=`確定要從課程列表刪除「${co.name}」嗎？${isPlaced(courseId)?'（此課程已排入課表，將一併移除）':''}`;
+  if(!confirm(msg)) return;
+  if(isPlaced(courseId)) removeCourse(courseId);
+  COURSES=COURSES.filter(c=>c.id!==courseId);
+  render(); showToast(`已刪除「${co.name}」`);
+}
+
+// ══════════════════════════════════════════
+//  TEACHER MANAGER
+// ══════════════════════════════════════════
+function openTeacherMgr(){
+  renderTeacherMgrTable();
+  document.getElementById('add-teacher-form').style.display='none';
+  document.getElementById('nt-name').value='';
+  document.getElementById('teacher-mgr-modal').style.display='flex';
+}
+function closeTeacherMgr(){
+  document.getElementById('teacher-mgr-modal').style.display='none';
+  render(); // refresh teacher selector and load view
+}
+function closeTMgrOutside(e){ if(e.target===document.getElementById('teacher-mgr-modal')) closeTeacherMgr(); }
+
+function openAddTeacher(){
+  document.getElementById('add-teacher-form').style.display='block';
+  document.getElementById('nt-name').focus();
+}
+
+function confirmAddTeacher(){
+  const name=document.getElementById('nt-name').value.trim();
+  if(!name){ showToast('⚠ 請輸入教師姓名'); return; }
+  if(TEACHERS.find(t=>t.name===name)){ showToast('⚠ 此教師姓名已存在'); return; }
+  const type=document.getElementById('nt-type').value;
+  const newId=`T${String(Date.now()).slice(-4)}`;
+  const newT={id:newId,name,type};
+  TEACHERS.push(newT);
+  tmap[newId]=newT;
+  document.getElementById('add-teacher-form').style.display='none';
+  document.getElementById('nt-name').value='';
+  renderTeacherMgrTable();
+  showToast(`✓ 已新增教師「${name}」`);
+}
+
+function renderTeacherMgrTable(){
+  const tbody=document.getElementById('teacher-mgr-body');
+  tbody.innerHTML='';
+
+  // Count how many courses each teacher is assigned to
+  const courseCount={};
+  TEACHERS.forEach(t=>courseCount[t.id]=0);
+  COURSES.forEach(co=>{ co.teachers.forEach(tid=>{ courseCount[tid]=(courseCount[tid]||0)+1; }); });
+
+  for(let i=0;i<TEACHERS.length;i++){
+    const t=TEACHERS[i];
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td>
+        <input class="tmgr-input" value="${t.name}" data-tid="${t.id}" data-field="name"
+          onchange="updateTeacher('${t.id}','name',this.value)"
+          style="width:90px;" />
+      </td>
+      <td>
+        <select class="tmgr-select" data-tid="${t.id}" data-field="type"
+          onchange="updateTeacher('${t.id}','type',this.value)">
+          <option value="專任"${t.type==='專任'?' selected':''}>專任</option>
+          <option value="兼任"${t.type==='兼任'?' selected':''}>兼任</option>
+        </select>
+      </td>
+      <td style="color:var(--text3);font-family:'DM Mono',monospace;font-size:11px;">${courseCount[t.id]||0} 門</td>
+      <td style="text-align:right;padding-right:10px;">
+        <button class="icon-btn del" title="刪除教師" onclick="deleteTeacher('${t.id}')">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function updateTeacher(tid, field, value){
+  value=value.trim();
+  if(!value){ showToast('⚠ 不可為空白'); return; }
+  if(field==='name'&&TEACHERS.find(t=>t.name===value&&t.id!==tid)){ showToast('⚠ 姓名重複'); return; }
+  const t=TEACHERS.find(t=>t.id===tid);
+  if(!t) return;
+  t[field]=value;
+  tmap[tid][field]=value;
+  // Don't re-render the whole table on each keystroke; just update the map
+  showToast(`已更新「${t.name}」`);
+}
+
+function deleteTeacher(tid){
+  const t=tmap[tid]; if(!t) return;
+  const usedIn=COURSES.filter(co=>co.teachers.includes(tid));
+  if(usedIn.length>0){
+    if(!confirm(`「${t.name}」尚有 ${usedIn.length} 門課程指派，確定刪除並移除指派？`)) return;
+    COURSES.forEach(co=>{ co.teachers=co.teachers.filter(id=>id!==tid); });
+  }
+  const idx=TEACHERS.findIndex(t=>t.id===tid);
+  if(idx>=0) TEACHERS.splice(idx,1);
+  delete tmap[tid];
+  renderTeacherMgrTable();
+  showToast(`已刪除教師「${t.name}」`);
+}
+
+// ══════════════════════════════════════════
+//  CLASS MANAGER
+// ══════════════════════════════════════════
+const TYPE_LABEL={day:'日間四技',eve:'進修四技',grad:'碩士班',prof:'碩士在職班'};
+
+function openClassMgr(){
+  renderClassMgrTable();
+  document.getElementById('add-class-form').style.display='none';
+  document.getElementById('nc-name').value='';
+  document.getElementById('class-mgr-modal').style.display='flex';
+}
+function closeClassMgr(){
+  document.getElementById('class-mgr-modal').style.display='none';
+  render();
+}
+
+function openAddClass(){
+  document.getElementById('add-class-form').style.display='block';
+  document.getElementById('nc-name').focus();
+}
+
+function confirmAddClass(){
+  const name=document.getElementById('nc-name').value.trim();
+  if(!name){ showToast('⚠ 請輸入班級名稱'); return; }
+  if(CLASSES.find(c=>c.name===name)){ showToast('⚠ 班級名稱已存在'); return; }
+  const type=document.getElementById('nc-type').value;
+  const grade=parseInt(document.getElementById('nc-grade').value);
+  const newId=`CLS${Date.now()}`;
+  const newCls={id:newId,name,type,grade};
+  CLASSES.push(newCls);
+  cmap[newId]=newCls;
+  schedule[newId]=[];
+  document.getElementById('add-class-form').style.display='none';
+  document.getElementById('nc-name').value='';
+  renderClassMgrTable();
+  showToast(`✓ 已新增班級「${name}」`);
+}
+
+function renderClassMgrTable(){
+  const tbody=document.getElementById('class-mgr-body'); tbody.innerHTML='';
+  for(const cls of CLASSES){
+    const total=COURSES.filter(c=>c.classId===cls.id).length;
+    const placed=COURSES.filter(c=>c.classId===cls.id&&isPlaced(c.id)).length;
+    const tr=document.createElement('tr');
+    tr.style.borderBottom='1px solid var(--border)';
+    tr.innerHTML=`
+      <td style="padding:6px 12px;">
+        <input class="tmgr-input" value="${cls.name}" style="width:100px;"
+          onchange="updateClass('${cls.id}','name',this.value)" />
+      </td>
+      <td style="padding:6px 12px;">
+        <select class="tmgr-select" onchange="updateClass('${cls.id}','type',this.value)">
+          ${['day','eve','grad','prof'].map(t=>`<option value="${t}"${cls.type===t?' selected':''}>${TYPE_LABEL[t]}</option>`).join('')}
+        </select>
+      </td>
+      <td style="padding:6px 12px;">
+        <select class="tmgr-select" onchange="updateClass('${cls.id}','grade',this.value)">
+          ${[1,2,3,4].map(g=>`<option value="${g}"${cls.grade===g?' selected':''}>${g}年級</option>`).join('')}
+        </select>
+      </td>
+      <td style="padding:6px 12px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${placed}/${total}</td>
+      <td style="text-align:right;padding-right:10px;">
+        <button class="icon-btn del" title="刪除班級" onclick="deleteClass('${cls.id}')">✕</button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function updateClass(cid, field, value){
+  const cls=CLASSES.find(c=>c.id===cid); if(!cls) return;
+  if(field==='grade') value=parseInt(value);
+  if(field==='name'){
+    value=value.trim();
+    if(!value){ showToast('⚠ 名稱不可為空'); return; }
+    if(CLASSES.find(c=>c.name===value&&c.id!==cid)){ showToast('⚠ 名稱重複'); return; }
+  }
+  cls[field]=value;
+  cmap[cid][field]=value;
+  showToast(`已更新「${cls.name}」`);
+}
+
+function deleteClass(cid){
+  const cls=cmap[cid]; if(!cls) return;
+  const courseCount=COURSES.filter(c=>c.classId===cid).length;
+  const msg=courseCount>0
+    ?`確定刪除「${cls.name}」？此班 ${courseCount} 門課程及所有排課紀錄將一併刪除。`
+    :`確定刪除「${cls.name}」？`;
+  if(!confirm(msg)) return;
+  // Remove all courses and schedule entries for this class
+  COURSES=COURSES.filter(c=>c.classId!==cid);
+  delete schedule[cid];
+  const idx=CLASSES.findIndex(c=>c.id===cid);
+  if(idx>=0) CLASSES.splice(idx,1);
+  delete cmap[cid];
+  // Switch selected class if needed
+  if(selectedClassId===cid) selectedClassId=CLASSES[0]?.id||'';
+  renderClassMgrTable();
+  showToast(`已刪除班級「${cls.name}」`);
+}
+
+// ══════════════════════════════════════════
+//  EXPORT / IMPORT
+// ══════════════════════════════════════════
+function exportBackup(){
+  const data={
+    version:1,
+    exportedAt:new Date().toISOString(),
+    semester:'115-1',
+    teachers:TEACHERS,
+    classes:CLASSES,
+    courses:COURSES,
+    schedule,
+  };
+  const json=JSON.stringify(data,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`SCM排課備份_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✓ 備份檔已下載');
+}
+
+function importBackup(event){
+  const file=event.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    try{
+      const data=JSON.parse(e.target.result);
+      if(!data.teachers||!data.classes||!data.courses||!data.schedule)
+        throw new Error('格式不符');
+      if(!confirm(`確定載入備份「${file.name}」？目前的排課資料將全部被覆蓋。`)){
+        event.target.value=''; return;
+      }
+      // Restore all data
+      TEACHERS.length=0; data.teachers.forEach(t=>{ TEACHERS.push(t); tmap[t.id]=t; });
+      CLASSES.length=0;  data.classes.forEach(c=>{ CLASSES.push(c); cmap[c.id]=c; });
+      COURSES=data.courses;
+      Object.keys(schedule).forEach(k=>delete schedule[k]);
+      Object.assign(schedule,data.schedule);
+      // Ensure all classes have a schedule entry
+      CLASSES.forEach(c=>{ if(!schedule[c.id]) schedule[c.id]=[]; });
+      selectedClassId=CLASSES[0]?.id||'';
+      selectedTeacherId=TEACHERS[0]?.id||'T01';
+      // Rebuild cmap / tmap fully
+      Object.keys(cmap).forEach(k=>{ if(!data.classes.find(c=>c.id===k)) delete cmap[k]; });
+      Object.keys(tmap).forEach(k=>{ if(!data.teachers.find(t=>t.id===k)) delete tmap[k]; });
+      // Reset teacher selector
+      document.getElementById('teacher-selector').innerHTML='';
+      render();
+      showToast(`✓ 備份「${file.name}」載入成功`);
+    } catch(err){
+      showToast(`⚠ 載入失敗：${err.message}`);
+    }
+    event.target.value='';
+  };
+  reader.readAsText(file);
+}
+
+
+// ══════════════════════════════════════════
+//  AUTO ARRANGE
+// ══════════════════════════════════════════
+function autoArrange(){
+  const cm=comap(); let placed=0;
+  for(const cls of CLASSES){
+    const courses=COURSES.filter(c=>c.classId===cls.id&&!isPlaced(c.id));
+    const real=getRealPeriods(cls);
+    const days=getClassDays(cls);
+    for(const co of courses){
+      let done=false;
+      for(const day of days){
+        for(const startP of real){
+          const span=getSpan(cls,startP,co.credits); if(!span) continue;
+          if(!isSpanFree(cls.id,day,span)) continue;
+          // Teacher free check
+          let free=true;
+          for(const tid of co.teachers){
+            for(const otherCls of CLASSES) for(const e of schedule[otherCls.id]){
+              if(e.day!==day) continue;
+              const oco=cm[e.courseId]; if(!oco?.teachers.includes(tid)) continue;
+              if(e.slots.some(s=>span.includes(s))){ free=false; break; }
+            }
+            if(!free) break;
+          }
+          if(free){ schedule[cls.id].push({courseId:co.id,day,slots:span}); placed++; done=true; break; }
+        }
+        if(done) break;
+      }
+    }
+  }
+  render(); detectConflicts();
+  showToast(`⚡ 自動排入 ${placed} 門課，衝堂 ${conflicts.length} 筆`);
+}
+
+function clearAll(){
+  if(!confirm('確定清除所有排課？')) return;
+  CLASSES.forEach(c=>{ schedule[c.id]=[]; });
+  render(); showToast('已清除');
+}
+
+// ══════════════════════════════════════════
+//  TOOLTIP
+// ══════════════════════════════════════════
+function showTooltip(e, co, entry, isTeacher){
+  if(!co) return;
+  const t=document.getElementById('tip');
+  const teachers=(co.teachers||[]).map(getTName).join('、')||'未指定';
+  const clsName=entry?.classId?cmap[entry.classId]?.name:'';
+  t.innerHTML=`<div style="font-weight:600;margin-bottom:4px">${co.name}</div>
+    ${isTeacher?`<div style="color:var(--text2)">班級：${clsName}</div>`:''}
+    <div style="color:var(--text2)">節數：${co.credits} 節連排</div>
+    <div style="color:var(--text2)">教師：${teachers}</div>
+    <div style="color:var(--text2)">${co.type}${co.custom?' · 自訂':''}</div>`;
+  t.classList.add('on'); moveTip(e);
+}
+function hideTooltip(){ document.getElementById('tip').classList.remove('on'); }
+function moveTip(e){ const t=document.getElementById('tip'); t.style.left=(e.clientX+12)+'px'; t.style.top=(e.clientY-10)+'px'; }
+document.addEventListener('mousemove',e=>{ const t=document.getElementById('tip'); if(t.classList.contains('on')) moveTip(e); });
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let toastTmr;
+function showToast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toastTmr); toastTmr=setTimeout(()=>t.classList.remove('show'),2300); }
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+render();
+</script>
+</body>
+</html>
